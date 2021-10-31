@@ -1,0 +1,32 @@
+{
+  "name": "crypto-calculator-backend",
+  "version": "1.0.0",
+  "description": "Max change Vlad change",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkbaranovskyi/crypto-calculator-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mkbaranovskyi/crypto-calculator-backend/issues"
+  },
+  "homepage": "https://github.com/mkbaranovskyi/crypto-calculator-backend#readme",
+  "scripts": {
+    "watch": "tsc -w",
+    "dev": "nodemon ./lib/index.js"
+  },
+  "dependencies": {
+    "@types/node": "^16.11.6",
+    "concurrently": "^6.3.0",
+    "dotenv": "^10.0.0",
+    "fastify": "^3.22.1",
+    "fastify-swagger": "^4.12.6",
+    "nanoid": "^3.1.30",
+    "nodemon": "^2.0.14",
+    "ts-node": "^10.4.0",
+    "tsc-watch": "^4.5.0"
+  },
+  "type": "module"
+}
