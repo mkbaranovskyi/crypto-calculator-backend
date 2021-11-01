@@ -1,7 +1,7 @@
 {
-  "name": "grand_petrol",
+  "name": "crypto-calculator",
   "version": "1.0.0",
-  "description": "p253-grand-petrol-backend",
+  "description": " crypto-calculator-backend",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
