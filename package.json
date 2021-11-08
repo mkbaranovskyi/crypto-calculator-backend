@@ -25,14 +25,16 @@
   "dependencies": {
     "ajv": "^7.2.4",
     "ajv-formats": "^1.6.1",
+    "dotenv": "^10.0.0",
     "fast-xml-parser": "^3.19.0",
     "fastify": "^3.20.1",
     "fastify-error": "^0.3.1",
     "fastify-swagger": "^4.9.0",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^2.0.2",
-    "mongoose": "^5.13.7",
+    "mongodb": "^3.7.3",
     "nodemailer": "^6.6.3",
-    "pino": "^6.13.0"
+    "pino": "^6.13.0",
+    "typeorm": "^0.2.38"
   }
 }

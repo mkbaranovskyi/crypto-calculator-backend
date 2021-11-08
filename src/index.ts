@@ -1,21 +1,35 @@
-import fast from 'fastify'
-// import { endpointRouter } from './src/endpoints/endpoint.router'
-import { one } from './one.js'
-console.log(one())
-// const fastify = fast({ logger: true })
+import fastify from 'fastify';
+import dotenv from 'dotenv';
+import { endpointRouter } from './endpoints/endpoint.router';
+import { connection } from './entity/connection';
+import { Users } from './entity/entity';
+dotenv.config();
 
-// const PORT = 5000 ?? process.env.PORT
+const PORT = process.env.PORT ?? 5000;
+const server = fastify({ logger: true });
 
-// const start = async () => {
-//   try {
-//     one()
-//     // fastify.register(endpointRouter)
-//     await fastify.listen(PORT, (err) => {
-//       console.log('ku')
-//     })
-//   } catch (err) {
-//     fastify.log.error(err)
-//     process.exit(1)
-//   }
-// }
-// start()
+const start = async () => {
+  server.register(endpointRouter);
+  server.listen(PORT, async (err) => {
+    if (err) {
+      server.log.error(err);
+      process.exit(1);
+    }
+    console.log(`The server started on the PORT ${PORT}!`);
+  });
+};
+
+const connectToDB = async () => {
+  try {
+    const connect = await connection();
+    const user = await connect.manager.insert(Users, {
+      email: 'corlack@gmail.com',
+      passwordHash: 'privet',
+      sessionKey: 'date',
+    });
+    start();
+  } catch (err) {
+    console.error(err);
+  }
+};
+connectToDB();

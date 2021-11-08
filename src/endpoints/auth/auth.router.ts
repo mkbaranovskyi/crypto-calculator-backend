@@ -1,9 +1,6 @@
-import fastify from 'fastify'
+import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify'
+import { registerSignUpRouter } from './auth.controller'
 
-export const authRouter = (fastify: any, options: any, done: any) => {
-  fastify.post('/auth', (req: any, reply: any) => {
-    reply.send({ status: 'OK' })
-  })
-
-  done()
+export const authRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
+  await server.register(registerSignUpRouter)
 }

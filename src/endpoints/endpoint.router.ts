@@ -7,5 +7,5 @@ export const endpointRouter: FastifyPluginAsync<FastifyPluginOptions> = async (
   instance,
   options
 ) => {
-  await instance.register(authRouter)
+  await instance.register(authRouter, { prefix: 'auth' })
 }
