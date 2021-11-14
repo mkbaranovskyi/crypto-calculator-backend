@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "debug": "tsc-watch -p tsconfig.dev.json --onSuccess 'node --inspect=0.0.0.0:9229 ./lib'",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "debug": "tsc-watch -p tsconfig.json --onSuccess 'node --inspect=0.0.0.0:9229 ./lib'",
     "start": "node lib/index"
   },
   "keywords": [],
@@ -14,10 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.4",
-    "@types/luxon": "^2.0.0",
     "@types/node": "^16.4.13",
-    "@types/nodemailer": "^6.4.4",
-    "@types/pino": "^6.3.11",
     "nodemon": "^2.0.12",
     "tsc-watch": "^4.4.0",
     "typescript": "^4.3.5"
@@ -26,15 +22,8 @@
     "ajv": "^7.2.4",
     "ajv-formats": "^1.6.1",
     "dotenv": "^10.0.0",
-    "fast-xml-parser": "^3.19.0",
     "fastify": "^3.20.1",
-    "fastify-error": "^0.3.1",
-    "fastify-swagger": "^4.9.0",
-    "jsonwebtoken": "^8.5.1",
-    "luxon": "^2.0.2",
     "mongodb": "^3.7.3",
-    "nodemailer": "^6.6.3",
-    "pino": "^6.13.0",
     "typeorm": "^0.2.38"
   }
 }

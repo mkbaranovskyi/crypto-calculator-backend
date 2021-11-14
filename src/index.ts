@@ -1,35 +1,22 @@
-import fastify from 'fastify';
-import dotenv from 'dotenv';
-import { endpointRouter } from './endpoints/endpoint.router';
-import { connection } from './entity/connection';
-import { Users } from './entity/entity';
-dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config()
+import fastify from 'fastify'
+import { endpointRouter } from './endpoints/endpoint.router'
+import { connectToDB } from './shared/database'
 
-const PORT = process.env.PORT ?? 5000;
-const server = fastify({ logger: true });
+const PORT = process.env.PORT ?? 5000
+const server = fastify({ logger: true })
 
 const start = async () => {
-  server.register(endpointRouter);
-  server.listen(PORT, async (err) => {
+  await server.register(endpointRouter)
+  await connectToDB()
+  server.listen(PORT, (err) => {
     if (err) {
-      server.log.error(err);
-      process.exit(1);
+      server.log.error(err)
+      process.exit(1)
     }
-    console.log(`The server started on the PORT ${PORT}!`);
-  });
-};
+    console.log(`The server started on the PORT ${PORT}!`)
+  })
+}
 
-const connectToDB = async () => {
-  try {
-    const connect = await connection();
-    const user = await connect.manager.insert(Users, {
-      email: 'corlack@gmail.com',
-      passwordHash: 'privet',
-      sessionKey: 'date',
-    });
-    start();
-  } catch (err) {
-    console.error(err);
-  }
-};
-connectToDB();
+start()
