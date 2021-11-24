@@ -1,14 +1,26 @@
-import { Column, Entity } from 'typeorm'
-import { Base } from './base.entity'
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+import { Base } from './base.entity';
 
 @Entity()
 export class UserEntity extends Base {
   @Column()
-  email!: string
+  email!: string;
 
   @Column()
-  passwordHash!: string
+  passwordHash!: string;
 
   @Column()
-  sessionKey!: string
+  sessionKey!: string;
+}
+
+@Entity()
+export class VerificationCodes extends Base {
+  @ObjectIdColumn()
+  userId!: ObjectID;
+
+  @Column()
+  code!: string;
+
+  @Column()
+  expiresAt!: Date;
 }

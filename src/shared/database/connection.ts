@@ -1,13 +1,13 @@
-import { createConnection } from 'typeorm'
-import { mongoConfig } from '../configs'
-import {UserEntity} from './entities'
+import { createConnection } from 'typeorm';
+import { mongoConfig } from '../configs';
+import { UserEntity, VerificationCodes } from './entities';
 
 export const connectToDB = async () => {
- await createConnection({
+  await createConnection({
     type: 'mongodb',
     url: mongoConfig.url,
     useUnifiedTopology: true,
     useNewUrlParser: true,
-    entities: [UserEntity],
-  })
-}
+    entities: [UserEntity, VerificationCodes],
+  });
+};
