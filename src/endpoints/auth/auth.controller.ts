@@ -1,11 +1,13 @@
 import Ajv from 'ajv';
-import { randomUUID } from 'crypto';
+import { randomInt, randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
+import { DateTime } from 'luxon';
+
 import { cryptoConfig, jwtConfig } from '../../shared/configs/index';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors/badRequestError';
 import { ISendSmsInput, optionsBody } from './inputs/sign-up.input';
-import { createEmailCode, createHash, generateTokens } from './outputs/sign-up.output';
+import { createEmailCode, createHash, generateTokens, messageToEmail, transporter } from './outputs/sign-up.output';
 
 const ajv = new Ajv();
 
@@ -40,6 +42,8 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
 
     const dataCodes = VerificationCodesEntity.create({ userId: dataUser._id, code, expiresAt });
     await dataCodes.save();
+
+    await transporter.sendMail(messageToEmail(email, code));
 
     return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
   });
