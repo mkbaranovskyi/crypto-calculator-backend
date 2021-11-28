@@ -61,7 +61,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     const dataCodes = VerificationCodesEntity.create({ userId: dataUser._id, code, expiresAt });
     await dataCodes.save();
 
-    // await transporter.sendMail(messageToEmail(email, code));
+    await transporter.sendMail(messageToEmail(email, code));
 
     return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
   });
