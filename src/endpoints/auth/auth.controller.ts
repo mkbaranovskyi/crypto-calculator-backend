@@ -1,19 +1,31 @@
 import Ajv from 'ajv';
-import { randomInt, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
-import { DateTime } from 'luxon';
-
 import { cryptoConfig, jwtConfig } from '../../shared/configs/index';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors/badRequestError';
+import { messageToEmail, transporter } from '../../shared/services/email/email.service';
+import { createHash } from '../../shared/services/hashing/hashing.service';
+import { generateTokens } from '../../shared/services/jwt/jwt.service';
+import { createEmailCode } from '../../shared/services/verification-code/verification-code.service';
 import { ISendSmsInput, optionsBody } from './inputs/sign-up.input';
-import { createEmailCode, createHash, generateTokens, messageToEmail, transporter } from './outputs/sign-up.output';
 
 const ajv = new Ajv();
 
+const { secret, accessLifetime, refreshLifetime } = jwtConfig;
+
 const signUpOptions = {
   schema: {
-    body: Object.assign({}, optionsBody),
+    body: {
+      200: {
+        type: 'object',
+        required: ['email', 'passwordHash', 'sessionKey'],
+        properties: {
+          email: { type: 'string' },
+          password: { type: 'string' },
+        },
+      },
+    },
   },
 };
 
@@ -21,21 +33,27 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
   server.post<{ Body: ISendSmsInput }>('/sign-up', signUpOptions, async (req, reply) => {
     const { email, password } = req.body;
 
+    // todo 28.11.2021: remove later - only here for testing
     await UserEntity.delete({ email });
+
     const user = await UserEntity.findOne({ email });
 
     if (user) {
       throw createError(400, 'User exists.');
     }
 
-    const uuid = randomUUID();
+    const sessionKey = randomUUID();
     const passwordHash = createHash(password, cryptoConfig.secret);
     const dataUser = UserEntity.create({ email, passwordHash });
-    await dataUser.save();
 
-    const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = generateTokens(uuid, jwtConfig.secret);
+    const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await generateTokens({
+      sessionKey: sessionKey,
+      jwtSecret: secret,
+      accessLifetime,
+      refreshLifetime,
+    });
 
-    dataUser.sessionKey = uuid;
+    dataUser.sessionKey = sessionKey;
     await dataUser.save();
 
     const { code, expiresAt } = createEmailCode();
@@ -43,7 +61,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     const dataCodes = VerificationCodesEntity.create({ userId: dataUser._id, code, expiresAt });
     await dataCodes.save();
 
-    await transporter.sendMail(messageToEmail(email, code));
+    // await transporter.sendMail(messageToEmail(email, code));
 
     return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
   });
