@@ -14,7 +14,7 @@ export class UserEntity extends Base {
 }
 
 @Entity()
-export class VerificationCodes extends Base {
+export class VerificationCodesEntity extends Base {
   @ObjectIdColumn()
   userId!: ObjectID;
 
