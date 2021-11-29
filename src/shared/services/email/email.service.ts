@@ -20,7 +20,7 @@ export const transporter = createTransport({
 
 export const messageToEmail = (toEmail: string, code: string): IMessageToEmail_Return => {
   return {
-    from: `<${smtpConfig.user}>`,
+    from: `Kravich13 <${smtpConfig.user}>`,
     to: `<${toEmail}>`,
     subject: 'Crypto-Financial-Calculator: регистрация аккаунта',
     html: `<h3>Ваш код активации аккаунта:</h3>\n<h2>${code}</h2>`,

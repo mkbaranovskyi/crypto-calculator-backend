@@ -1,14 +1,11 @@
 import Ajv from 'ajv';
 import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
-import { cryptoConfig, jwtConfig } from '../../shared/configs/index';
+import { cryptoConfig, jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
-import { createError } from '../../shared/errors/badRequestError';
-import { messageToEmail, transporter } from '../../shared/services/email/email.service';
-import { createHash } from '../../shared/services/hashing/hashing.service';
-import { generateTokens } from '../../shared/services/jwt/jwt.service';
-import { createEmailCode } from '../../shared/services/verification-code/verification-code.service';
-import { ISendSmsInput, optionsBody } from './inputs/sign-up.input';
+import { createError } from '../../shared/errors';
+import { EmailService, HashingService, JWTService, VerificationCodeService } from '../../shared/services';
+import { ISendSmsInput } from './inputs';
 
 const ajv = new Ajv();
 
@@ -43,11 +40,11 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     }
 
     const sessionKey = randomUUID();
-    const passwordHash = createHash(password, cryptoConfig.secret);
+    const passwordHash = HashingService.createHash(password, cryptoConfig.secret);
     const dataUser = UserEntity.create({ email, passwordHash });
 
-    const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await generateTokens({
-      sessionKey: sessionKey,
+    const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await JWTService.generateTokens({
+      sessionKey,
       jwtSecret: secret,
       accessLifetime,
       refreshLifetime,
@@ -56,12 +53,12 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     dataUser.sessionKey = sessionKey;
     await dataUser.save();
 
-    const { code, expiresAt } = createEmailCode();
+    const { code, expiresAt } = VerificationCodeService.createEmailCode();
 
     const dataCodes = VerificationCodesEntity.create({ userId: dataUser._id, code, expiresAt });
     await dataCodes.save();
 
-    await transporter.sendMail(messageToEmail(email, code));
+    await EmailService.transporter.sendMail(EmailService.messageToEmail(email, code));
 
     return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
   });
