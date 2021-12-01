@@ -1,51 +1,40 @@
 import jwt from 'jsonwebtoken';
 import { DateTime } from 'luxon';
+import { IGenerateTokensInput } from './inputs';
+import { IGenerateTokensOutput } from './outputs';
 
-export interface IGenerateTokens_Props {
-  jwtSecret: string;
-  sessionKey: string;
-  accessLifetime: string;
-  refreshLifetime: string;
-}
-
-export interface IGenerateTokens_Return {
-  accessToken: string;
-  refreshToken: string;
-  accessTokenExpiresIn: string;
-  refreshTokenExpiresIn: string;
-}
+const createToken = async (sessionKey: string, jwtSecret: string, tokenLifetime: string): Promise<string> => {
+  return new Promise((res) => {
+    jwt.sign({ sessionKey }, jwtSecret, { expiresIn: tokenLifetime }, (err, token) => {
+      if (err) {
+        throw err;
+      } else if (!token) {
+        throw new Error('Error while creating token');
+      } else {
+        res(token);
+      }
+    });
+  });
+};
 
 export const generateTokens = async ({
   sessionKey,
   jwtSecret,
   accessLifetime,
   refreshLifetime,
-}: IGenerateTokens_Props): Promise<IGenerateTokens_Return> => {
+}: IGenerateTokensInput): Promise<IGenerateTokensOutput> => {
   const date = DateTime.utc();
 
-  let accessToken = '';
-  let refreshToken = '';
+  const result = await Promise.all([
+    createToken(sessionKey, jwtSecret, accessLifetime),
+    createToken(sessionKey, jwtSecret, refreshLifetime),
+  ]);
 
-  const createToken = async (tokenLifetime: string) => {
-    return new Promise((res) => {
-      jwt.sign({ sessionKey }, jwtSecret, { expiresIn: tokenLifetime }, (err, token) => {
-        if (err) {
-          throw err;
-        } else if (!token) {
-          throw new Error('Error while creating token');
-        } else {
-          res(token);
-        }
-      });
-    });
-  };
-  const result = await Promise.all([createToken(accessLifetime), createToken(refreshLifetime)]);
-
-  if (result.length) {
-    const [access, refresh] = result;
-    accessToken = access as string;
-    refreshToken = refresh as string;
+  if (!result.length) {
+    throw new Error('Error while creating tokens.');
   }
+
+  const [accessToken, refreshToken] = result;
 
   const accessTokenExpiresIn = String(date.plus({ days: 1 }).toMillis());
   const refreshTokenExpiresIn = String(date.plus({ days: 31 }).toMillis());

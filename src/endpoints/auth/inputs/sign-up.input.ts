@@ -1,4 +1,4 @@
-export interface ISendSmsInput {
+export interface IBodySignUp {
   email: string;
   password: string;
 }

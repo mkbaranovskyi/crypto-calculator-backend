@@ -1,11 +1,11 @@
 import Ajv from 'ajv';
 import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
-import { cryptoConfig, jwtConfig } from '../../shared/configs';
+import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors';
 import { EmailService, HashingService, JWTService, VerificationCodeService } from '../../shared/services';
-import { ISendSmsInput } from './inputs';
+import { IBodySignUp } from './inputs';
 
 const ajv = new Ajv();
 
@@ -27,7 +27,7 @@ const signUpOptions = {
 };
 
 export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
-  server.post<{ Body: ISendSmsInput }>('/sign-up', signUpOptions, async (req, reply) => {
+  server.post<{ Body: IBodySignUp }>('/sign-up', signUpOptions, async (req, reply) => {
     const { email, password } = req.body;
 
     // todo 28.11.2021: remove later - only here for testing
@@ -40,7 +40,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     }
 
     const sessionKey = randomUUID();
-    const passwordHash = HashingService.createHash(password, cryptoConfig.secret);
+    const passwordHash = HashingService.createHash(password, sessionKey);
     const dataUser = UserEntity.create({ email, passwordHash });
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await JWTService.generateTokens({
@@ -53,12 +53,12 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     dataUser.sessionKey = sessionKey;
     await dataUser.save();
 
-    const { code, expiresAt } = VerificationCodeService.createEmailCode();
+    const { code, expiresAt } = VerificationCodeService.createCode();
 
     const dataCodes = VerificationCodesEntity.create({ userId: dataUser._id, code, expiresAt });
     await dataCodes.save();
 
-    await EmailService.transporter.sendMail(EmailService.messageToEmail(email, code));
+    await EmailService.sendMessageToEmail(email, code);
 
     return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
   });
