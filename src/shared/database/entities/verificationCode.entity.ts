@@ -7,8 +7,8 @@ export class VerificationCodesEntity extends Base {
   userId!: ObjectID;
 
   @Column()
-  code!: string;
+  code!: number;
 
   @Column()
-  expiresAt!: Date;
+  expiresAt!: number;
 }

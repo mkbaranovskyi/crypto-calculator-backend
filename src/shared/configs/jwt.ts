@@ -10,6 +10,6 @@ if (!process.env.JWT_REFRESH_LIFETIME) {
 
 export const jwtConfig = {
   secret: process.env.JWT_SECRET,
-  accessLifetime: process.env.JWT_ACCESS_LIFETIME,
-  refreshLifetime: process.env.JWT_REFRESH_LIFETIME,
+  accessLifetime: Number(process.env.JWT_ACCESS_LIFETIME),
+  refreshLifetime: Number(process.env.JWT_REFRESH_LIFETIME),
 };

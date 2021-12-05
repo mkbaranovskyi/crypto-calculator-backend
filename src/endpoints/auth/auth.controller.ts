@@ -6,6 +6,7 @@ import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors';
 import { EmailService, HashingService, JWTService, VerificationCodeService } from '../../shared/services';
 import { IBodySignUp } from './inputs';
+import { statusOutputSchema } from './outputs';
 
 const ajv = new Ajv();
 
@@ -13,15 +14,23 @@ const { secret, accessLifetime, refreshLifetime } = jwtConfig;
 
 const signUpOptions = {
   schema: {
+    tags: ['auth'],
+    summary: 'Sign up',
     body: {
-      200: {
-        type: 'object',
-        required: ['email', 'passwordHash', 'sessionKey'],
-        properties: {
-          email: { type: 'string' },
-          password: { type: 'string' },
+      type: 'object',
+      properties: {
+        email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+        password: {
+          type: 'string',
+          minLength: 8,
+          maxLength: 256,
+          example: 'passwordTest',
         },
       },
+      required: ['email', 'password'],
+    },
+    response: {
+      200: statusOutputSchema,
     },
   },
 };

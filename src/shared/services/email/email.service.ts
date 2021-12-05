@@ -18,7 +18,7 @@ const transporter = createTransport({
   },
 });
 
-export const sendMessageToEmail = async (toEmail: string, code: string): Promise<void> => {
+export const sendMessageToEmail = async (toEmail: string, code: number): Promise<void> => {
   const sendData: ISendData = {
     from: `Kravich13 <${smtpConfig.user}>`,
     to: `<${toEmail}>`,
