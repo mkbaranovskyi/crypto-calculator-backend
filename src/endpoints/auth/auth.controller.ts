@@ -10,7 +10,7 @@ import { statusOutputSchema } from './outputs';
 
 const ajv = new Ajv();
 
-const { secret, accessLifetime, refreshLifetime } = jwtConfig;
+const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
 const signUpOptions = {
   schema: {
@@ -49,17 +49,19 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     }
 
     const sessionKey = randomUUID();
+    const salt = randomUUID();
     const passwordHash = HashingService.createHash(password, sessionKey);
     const dataUser = UserEntity.create({ email, passwordHash });
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await JWTService.generateTokens({
       sessionKey,
       jwtSecret: secret,
-      accessLifetime,
-      refreshLifetime,
+      accessDeathDate,
+      refreshDeathDate,
     });
 
     dataUser.sessionKey = sessionKey;
+    dataUser.salt = salt;
     await dataUser.save();
 
     const { code, expiresAt } = VerificationCodeService.createCode();

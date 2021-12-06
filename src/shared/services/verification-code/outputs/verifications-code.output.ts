@@ -1,4 +1,4 @@
 export interface IGenerageCodeOutput {
-  code: number;
-  expiresAt: number;
+  code: string;
+  expiresAt: Date;
 }

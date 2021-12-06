@@ -10,5 +10,8 @@ export class UserEntity extends Base {
   passwordHash!: string;
 
   @Column()
+  salt!: string;
+
+  @Column()
   sessionKey!: string;
 }

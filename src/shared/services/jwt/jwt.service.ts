@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { tokensLifetime } from '../luxon';
+import { DateTime } from 'luxon';
 import { IGenerateTokensInput } from './inputs';
 import { IGenerateTokensOutput } from './outputs';
 
-const createToken = async (sessionKey: string, jwtSecret: string, tokenLifetime: string): Promise<string> => {
+const createToken = async (sessionKey: string, jwtSecret: string, tokenDeathDate: string): Promise<string> => {
   return new Promise((res) => {
-    jwt.sign({ sessionKey }, jwtSecret, { expiresIn: tokenLifetime }, (err, token) => {
+    jwt.sign({ sessionKey }, jwtSecret, { expiresIn: tokenDeathDate }, (err, token) => {
       if (err) {
         throw err;
       } else if (!token) {
@@ -20,12 +20,12 @@ const createToken = async (sessionKey: string, jwtSecret: string, tokenLifetime:
 export const generateTokens = async ({
   sessionKey,
   jwtSecret,
-  accessLifetime,
-  refreshLifetime,
+  accessDeathDate,
+  refreshDeathDate,
 }: IGenerateTokensInput): Promise<IGenerateTokensOutput> => {
   const result = await Promise.all([
-    createToken(sessionKey, jwtSecret, `${accessLifetime}d`),
-    createToken(sessionKey, jwtSecret, `${refreshLifetime}d`),
+    createToken(sessionKey, jwtSecret, `${accessDeathDate}d`),
+    createToken(sessionKey, jwtSecret, `${refreshDeathDate}d`),
   ]);
 
   if (!result.length) {
@@ -34,7 +34,9 @@ export const generateTokens = async ({
 
   const [accessToken, refreshToken] = result;
 
-  const { accessTokenExpiresIn, refreshTokenExpiresIn } = tokensLifetime(accessLifetime, refreshLifetime);
+  const date = DateTime.utc();
+  const accessTokenExpiresIn = date.plus({ days: accessDeathDate }).toMillis();
+  const refreshTokenExpiresIn = date.plus({ days: refreshDeathDate }).toMillis();
 
   return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
 };
