@@ -24,8 +24,8 @@ export const generateTokens = async ({
   refreshDeathDate,
 }: IGenerateTokensInput): Promise<IGenerateTokensOutput> => {
   const result = await Promise.all([
-    createToken(sessionKey, jwtSecret, `${accessDeathDate}d`),
-    createToken(sessionKey, jwtSecret, `${refreshDeathDate}d`),
+    createToken(sessionKey, jwtSecret, `${accessDeathDate}s`),
+    createToken(sessionKey, jwtSecret, `${refreshDeathDate}s`),
   ]);
 
   if (!result.length) {
@@ -35,8 +35,8 @@ export const generateTokens = async ({
   const [accessToken, refreshToken] = result;
 
   const date = DateTime.utc();
-  const accessTokenExpiresIn = date.plus({ days: accessDeathDate }).toMillis();
-  const refreshTokenExpiresIn = date.plus({ days: refreshDeathDate }).toMillis();
+  const accessTokenExpiresIn = date.plus({ seconds: accessDeathDate }).toMillis();
+  const refreshTokenExpiresIn = date.plus({ seconds: refreshDeathDate }).toMillis();
 
   return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
 };
