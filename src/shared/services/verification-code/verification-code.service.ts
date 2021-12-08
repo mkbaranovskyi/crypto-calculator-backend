@@ -1,16 +1,12 @@
 import { randomInt } from 'crypto';
 import { DateTime } from 'luxon';
-
-export interface IGenerageCodeOutput {
-  code: string;
-  expiresAt: string;
-}
+import { IGenerageCodeOutput } from './outputs';
 
 export const createCode = (): IGenerageCodeOutput => {
   const date = DateTime.utc();
 
   const code = String(randomInt(101010, 999999));
-  const expiresAt = String(date.plus({ minutes: 3 }).toMillis());
+  const expiresAt = date.plus({ minutes: 3 }).toJSDate();
 
   return { code, expiresAt };
 };

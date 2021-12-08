@@ -27,6 +27,7 @@
     "bcrypt": "^5.0.1",
     "dotenv": "^10.0.0",
     "fastify": "^3.20.1",
+    "fastify-swagger": "^4.12.6",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^2.1.1",
     "mongodb": "^3.7.3",
