@@ -11,9 +11,15 @@ if (!process.env.SMTP_PASSWORD) {
   throw new Error('process.env.SMTP_PASSWORD is undefined');
 }
 
+const port = Number(process.env.SMTP_PORT);
+
+if (port === NaN) {
+  throw new Error('process.env.SMTP_PORT is NaN');
+}
+
 export const smtpConfig = {
   host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT),
+  port,
   user: process.env.SMTP_USER,
   password: process.env.SMTP_PASSWORD,
 };
