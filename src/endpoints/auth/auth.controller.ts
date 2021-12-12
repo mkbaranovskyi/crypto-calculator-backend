@@ -6,8 +6,7 @@ import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors';
 import { EmailService, HashingService, JWTService, VerificationCodeService } from '../../shared/services';
-import { IBodySignUp } from './inputs';
-import { IBodyValidateEmail, IHeadersValidateEmail } from './inputs/validate-email';
+import { IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
 import { signUpOutputSchema, valitdateEmailOutputSchema } from './outputs';
 
 const ajv = new Ajv();
