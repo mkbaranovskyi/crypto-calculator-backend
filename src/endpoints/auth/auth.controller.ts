@@ -1,12 +1,14 @@
 import Ajv from 'ajv';
 import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
+import { DateTime } from 'luxon';
 import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors';
 import { EmailService, HashingService, JWTService, VerificationCodeService } from '../../shared/services';
 import { IBodySignUp } from './inputs';
-import { statusOutputSchema } from './outputs';
+import { IBodyValidateEmail, IHeadersValidateEmail } from './inputs/validate-email';
+import { signUpOutputSchema, valitdateEmailOutputSchema } from './outputs';
 
 const ajv = new Ajv();
 
@@ -30,7 +32,31 @@ const signUpOptions = {
       required: ['email', 'password'],
     },
     response: {
-      200: statusOutputSchema,
+      200: signUpOutputSchema,
+    },
+  },
+};
+
+const validateEmailOptions = {
+  schema: {
+    tags: ['auth'],
+    summary: 'Verify email here',
+    body: {
+      type: 'object',
+      properties: {
+        code: { type: 'string', minLength: 6, maxLength: 6 },
+      },
+      required: ['code'],
+    },
+    headers: {
+      type: 'object',
+      properties: {
+        authorization: { type: 'string' },
+      },
+      required: ['authorization'],
+    },
+    response: {
+      200: valitdateEmailOutputSchema,
     },
   },
 };
@@ -73,4 +99,42 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
 
     return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
   });
+};
+
+export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
+  server.post<{ Body: IBodyValidateEmail; Headers: IHeadersValidateEmail }>(
+    '/email/validate',
+    validateEmailOptions,
+    async (req, reply) => {
+      const { code } = req.body;
+      const { authorization } = req.headers;
+
+      const sessionKey = await JWTService.decodeToken(authorization, secret);
+
+      if (!sessionKey) {
+        throw createError(400, 'Invalid access token.');
+      }
+
+      const user = await UserEntity.findOne({ sessionKey });
+
+      if (!user) {
+        throw createError(401, 'Invalid access token.');
+      }
+
+      const verificationCode = await VerificationCodesEntity.findOne({ userId: user._id });
+
+      if (!verificationCode || verificationCode.code !== code) {
+        throw createError(401, 'Invalid code sent.');
+      }
+
+      const date = DateTime.utc();
+      const expiresAt = DateTime.fromJSDate(verificationCode.expiresAt);
+
+      if (date.toMillis() > expiresAt.toMillis()) {
+        throw createError(401, 'Code lifetime expired.');
+      }
+
+      return { status: 'ok!' };
+    }
+  );
 };
