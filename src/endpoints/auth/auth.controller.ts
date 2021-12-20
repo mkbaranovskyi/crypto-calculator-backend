@@ -12,7 +12,6 @@ import { signUpOutputSchema, valitdateEmailOutputSchema } from './outputs';
 const ajv = new Ajv();
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
-const { getUser } = LocalStorage;
 
 export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
   server.post<{ Body: IBodySignUp }>(
@@ -106,17 +105,19 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       },
     },
     async (req, reply) => {
-      const { code } = req.body;
-      const user = getUser();
+      const { code: receivedCode } = req.body;
+      const user = LocalStorage.getUser();
 
-      const verificationCode = await VerificationCodesEntity.findOne({ userId: user._id });
+      const savedCode = await VerificationCodesEntity.findOne({ userId: user._id });
 
-      if (!verificationCode || verificationCode.code !== code) {
+      console.log(savedCode);
+
+      if (!savedCode || savedCode.code !== receivedCode) {
         throw createError(401, 'Invalid code sent.');
       }
 
       const currentDate = DateTime.utc();
-      const codeExpiresAt = DateTime.fromJSDate(verificationCode.expiresAt);
+      const codeExpiresAt = DateTime.fromJSDate(savedCode.expiresAt);
 
       if (+currentDate > +codeExpiresAt) {
         throw createError(401, 'Code lifetime expired.');

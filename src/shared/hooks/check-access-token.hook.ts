@@ -7,7 +7,9 @@ export const checkAccessToken = async (jwtSecret: string, token?: string): Promi
     return;
   }
 
-  const sessionKey = await JWTService.decodeToken(token, jwtSecret);
+  const cleanedUpCode = token.replace('Bearer ', '');
+
+  const sessionKey = await JWTService.decodeToken(cleanedUpCode, jwtSecret);
 
   if (!sessionKey) {
     throw createError(400, 'Invalid access token.');
