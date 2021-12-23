@@ -40,3 +40,25 @@ export const generateTokens = async ({
 
   return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
 };
+
+export const decodeToken = async (token: string, jwtSecret: string): Promise<string | null> => {
+  let result = null;
+
+  try {
+    result = await new Promise<jwt.JwtPayload>((res, rej) => {
+      jwt.verify(token, jwtSecret, (err, decoded) => {
+        if (err) {
+          throw err;
+        } else if (!decoded || !decoded.sessionKey) {
+          throw new Error('Error while decorating token ');
+        } else {
+          res(decoded);
+        }
+      });
+    });
+  } catch (err) {
+    return null;
+  }
+
+  return result.sessionKey;
+};

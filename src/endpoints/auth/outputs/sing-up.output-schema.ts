@@ -1,4 +1,4 @@
-export const statusOutputSchema = {
+export const signUpOutputSchema = {
   type: 'object',
   properties: {
     accessToken: { type: 'string' },
