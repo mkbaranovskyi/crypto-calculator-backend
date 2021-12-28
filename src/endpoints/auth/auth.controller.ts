@@ -3,11 +3,12 @@ import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { DateTime } from 'luxon';
 import { jwtConfig } from '../../shared/configs';
+import { EmailConstants } from '../../shared/constants';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
-import { IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
-import { signUpOutputSchema, valitdateEmailOutputSchema } from './outputs';
+import { IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
+import { forgotEmailOutputSchema, signUpOutputSchema, valitdateEmailOutputSchema } from './outputs';
 
 const ajv = new Ajv();
 
@@ -68,10 +69,10 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
 
       const { code, expiresAt } = VerificationCodeService.createCode();
 
-      const dataCodes = VerificationCodesEntity.create({ userId: dataUser._id, code, expiresAt });
+      const dataCodes = VerificationCodesEntity.create({ userId: String(dataUser._id), code, expiresAt });
       await dataCodes.save();
 
-      await EmailService.sendMessageToEmail(email, code);
+      await EmailService.sendMessageToEmail(email, code, EmailConstants.registrationLetter);
 
       return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
     }
@@ -108,9 +109,7 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       const { code: receivedCode } = req.body;
       const user = LocalStorage.getUser();
 
-      const savedCode = await VerificationCodesEntity.findOne({ userId: user._id });
-
-      console.log(savedCode);
+      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
 
       if (!savedCode || savedCode.code !== receivedCode) {
         throw createError(401, 'Invalid code sent.');
@@ -122,6 +121,54 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       if (+currentDate > +codeExpiresAt) {
         throw createError(401, 'Code lifetime expired.');
       }
+
+      return { status: 'ok!' };
+    }
+  );
+};
+
+export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
+  server.post<{ Body: IBodyForgotEmail }>(
+    '/email/forgot',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: 'Forgot email here',
+        body: {
+          type: 'object',
+          properties: {
+            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+          },
+          required: ['email'],
+        },
+        response: {
+          200: forgotEmailOutputSchema,
+        },
+      },
+    },
+    async (req, reply) => {
+      const { email } = req.body;
+
+      const dataUser = await UserEntity.findOne({ email });
+
+      if (!dataUser) {
+        throw createError(401, 'Email does not exist.');
+      }
+
+      const { code, expiresAt } = VerificationCodeService.createCode();
+
+      const savedCode = await VerificationCodesEntity.findOne({ userId: String(dataUser._id) });
+
+      const currentDate = DateTime.utc();
+      const codeExpiresAt = DateTime.fromJSDate(savedCode!.expiresAt).minus({ seconds: 90 });
+
+      if (+currentDate < +codeExpiresAt) {
+        throw createError(400, 'Code has not expired.');
+      }
+
+      VerificationCodesEntity.update({ userId: String(dataUser._id) }, { code, expiresAt });
+
+      await EmailService.sendMessageToEmail(email, code, EmailConstants.recoveryLetter);
 
       return { status: 'ok!' };
     }

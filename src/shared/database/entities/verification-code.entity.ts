@@ -1,14 +1,14 @@
-import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
+import { Column, Entity, UpdateDateColumn } from 'typeorm';
 import { Base } from './base.entity';
 
 @Entity()
 export class VerificationCodesEntity extends Base {
-  @ObjectIdColumn()
-  userId!: ObjectID;
+  @Column()
+  userId!: string;
 
   @Column()
   code!: string;
 
-  @Column()
+  @UpdateDateColumn()
   expiresAt!: Date;
 }
