@@ -1,6 +1,6 @@
 import { createTransport } from 'nodemailer';
 import { smtpConfig } from '../../configs/index';
-import { EmailConstants } from '../../constants';
+import { EmailEnum } from '../../enums';
 
 interface ISendData {
   from: string;
@@ -28,11 +28,11 @@ export const sendMessageToEmail = async (toEmail: string, code: string, type: st
   };
 
   switch (type) {
-    case EmailConstants.registrationLetter:
+    case EmailEnum.REGISTRATION_LETTER:
       sendData.subject = 'Crypto-Financial-Calculator: регистрация аккаунта';
       sendData.html = `<h3>Ваш код активации аккаунта:</h3>\n<h2>${code}</h2>`;
       break;
-    case EmailConstants.recoveryLetter:
+    case EmailEnum.REGISTRATION_LETTER:
       sendData.subject = 'Crypto-Financial-Calculator: восстановление аккаунта';
       sendData.html = `<h3>Ваш код восстановления аккаунта:</h3>\n<h2>${code}</h2>`;
       break;

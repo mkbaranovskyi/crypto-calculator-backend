@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { DateTime } from 'luxon';
 import { jwtConfig } from '../../shared/configs';
-import { EmailConstants } from '../../shared/constants';
+import { EmailEnum } from '../../shared/enums';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { createError } from '../../shared/errors';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
@@ -72,7 +72,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
       const dataCodes = VerificationCodesEntity.create({ userId: String(dataUser._id), code, expiresAt });
       await dataCodes.save();
 
-      await EmailService.sendMessageToEmail(email, code, EmailConstants.registrationLetter);
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
 
       return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
     }
@@ -149,26 +149,26 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
     async (req, reply) => {
       const { email } = req.body;
 
-      const dataUser = await UserEntity.findOne({ email });
+      const user = await UserEntity.findOne({ email });
 
-      if (!dataUser) {
+      if (!user) {
         throw createError(401, 'Email does not exist.');
       }
 
       const { code, expiresAt } = VerificationCodeService.createCode();
 
-      const savedCode = await VerificationCodesEntity.findOne({ userId: String(dataUser._id) });
+      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
 
       const currentDate = DateTime.utc();
-      const codeExpiresAt = DateTime.fromJSDate(savedCode!.expiresAt).minus({ seconds: 90 });
+      const codeExpiresAt = DateTime.fromJSDate(savedCode!.updatedAt).plus({ seconds: 90 });
 
       if (+currentDate < +codeExpiresAt) {
         throw createError(400, 'Code has not expired.');
       }
 
-      VerificationCodesEntity.update({ userId: String(dataUser._id) }, { code, expiresAt });
+      VerificationCodesEntity.update({ userId: String(user._id) }, { code, expiresAt });
 
-      await EmailService.sendMessageToEmail(email, code, EmailConstants.recoveryLetter);
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
 
       return { status: 'ok!' };
     }
