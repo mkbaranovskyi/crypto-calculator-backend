@@ -160,13 +160,16 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
       const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
 
       const currentDate = DateTime.utc();
-      const codeExpiresAt = DateTime.fromJSDate(savedCode!.updatedAt).plus({ seconds: 90 });
+      const codeExpiresAt = DateTime.fromJSDate(savedCode!.createdAt).plus({ seconds: 90 });
 
       if (+currentDate < +codeExpiresAt) {
         throw createError(400, 'Code has not expired.');
       }
 
-      VerificationCodesEntity.update({ userId: String(user._id) }, { code, expiresAt });
+      await VerificationCodesEntity.delete({ userId: String(user._id) });
+
+      const dataCodes = VerificationCodesEntity.create({ userId: String(user._id), code, expiresAt });
+      await dataCodes.save();
 
       await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
 
