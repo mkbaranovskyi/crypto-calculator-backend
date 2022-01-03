@@ -1,4 +1,4 @@
-export const valitdateEmailOutputSchema = {
+export const statusOutputSchema = {
   type: 'object',
   properties: {
     status: { type: 'string' },

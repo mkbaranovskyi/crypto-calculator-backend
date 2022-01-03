@@ -4,10 +4,12 @@ import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { DateTime } from 'luxon';
 import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { EmailEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
+import { statusOutputSchema } from '../../shared/models/outputs';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
-import { IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
-import { signUpOutputSchema, valitdateEmailOutputSchema } from './outputs';
+import { IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
+import { signUpOutputSchema } from './outputs';
 
 const ajv = new Ajv();
 
@@ -68,10 +70,9 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
 
       const { code, expiresAt } = VerificationCodeService.createCode();
 
-      const dataCodes = VerificationCodesEntity.create({ userId: dataUser._id, code, expiresAt });
-      await dataCodes.save();
+      await VerificationCodesEntity.create({ userId: String(dataUser._id), code, expiresAt }).save();
 
-      await EmailService.sendMessageToEmail(email, code);
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
 
       return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
     }
@@ -100,7 +101,7 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
           required: ['authorization'],
         },
         response: {
-          200: valitdateEmailOutputSchema,
+          200: statusOutputSchema,
         },
       },
     },
@@ -108,9 +109,7 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       const { code: receivedCode } = req.body;
       const user = LocalStorage.getUser();
 
-      const savedCode = await VerificationCodesEntity.findOne({ userId: user._id });
-
-      console.log(savedCode);
+      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
 
       if (!savedCode || savedCode.code !== receivedCode) {
         throw createError(401, 'Invalid code sent.');
@@ -122,6 +121,56 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       if (+currentDate > +codeExpiresAt) {
         throw createError(401, 'Code lifetime expired.');
       }
+
+      return { status: 'ok!' };
+    }
+  );
+};
+
+export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
+  server.post<{ Body: IBodyForgotEmail }>(
+    '/email/forgot',
+    {
+      schema: {
+        tags: ['auth'],
+        summary: 'Forgot email here',
+        body: {
+          type: 'object',
+          properties: {
+            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+          },
+          required: ['email'],
+        },
+        response: {
+          200: statusOutputSchema,
+        },
+      },
+    },
+    async (req, reply) => {
+      const { email } = req.body;
+
+      const user = await UserEntity.findOne({ email });
+
+      if (!user) {
+        throw createError(400, 'Email does not exist.');
+      }
+
+      const { code, expiresAt } = VerificationCodeService.createCode();
+
+      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+
+      const currentDate = DateTime.utc();
+      const codeExpiresAt = DateTime.fromJSDate(savedCode!.createdAt).plus({ seconds: 90 });
+
+      if (+currentDate < +codeExpiresAt) {
+        throw createError(400, 'Wait before you can request another code.');
+      }
+
+      await VerificationCodesEntity.delete({ userId: String(user._id) });
+
+      await VerificationCodesEntity.create({ userId: String(user._id), code, expiresAt }).save();
+
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
       return { status: 'ok!' };
     }
