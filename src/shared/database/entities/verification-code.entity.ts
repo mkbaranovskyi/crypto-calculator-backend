@@ -9,6 +9,6 @@ export class VerificationCodesEntity extends Base {
   @Column()
   code!: string;
 
-  @UpdateDateColumn()
+  @Column()
   expiresAt!: Date;
 }
