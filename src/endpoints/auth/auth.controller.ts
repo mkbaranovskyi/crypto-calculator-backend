@@ -3,12 +3,13 @@ import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { DateTime } from 'luxon';
 import { jwtConfig } from '../../shared/configs';
-import { EmailEnum } from '../../shared/enums';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { EmailEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
+import { statusOutputSchema } from '../../shared/models/outputs';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
 import { IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
-import { statusOutputSchema, signUpOutputSchema } from './outputs';
+import { signUpOutputSchema } from './outputs';
 
 const ajv = new Ajv();
 

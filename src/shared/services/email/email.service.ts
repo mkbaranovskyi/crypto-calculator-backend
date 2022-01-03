@@ -1,6 +1,7 @@
 import { createTransport } from 'nodemailer';
 import { smtpConfig } from '../../configs/index';
 import { EmailEnum } from '../../enums';
+import { createError } from '../../errors';
 
 interface ISendData {
   from: string;
@@ -37,7 +38,7 @@ export const sendMessageToEmail = async (toEmail: string, code: string, type: st
       sendData.html = `<h3>Ваш код восстановления аккаунта:</h3>\n<h2>${code}</h2>`;
       break;
     default:
-      break;
+      throw createError(500, 'Server error while sending email.');
   }
 
   await transporter.sendMail(sendData);
