@@ -36,7 +36,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
           required: ['email', 'password'],
         },
         response: {
-          200: statusOutputSchema,
+          200: signUpOutputSchema,
           300: statusOutputSchema,
           400: statusOutputSchema,
           401: statusOutputSchema,
@@ -182,9 +182,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
 
       await VerificationCodesEntity.create({ userId: String(user._id), code, expiresAt }).save();
 
-      throw Error('QQ');
-
-      // await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
       return { status: 'ok!' };
     }

@@ -13,5 +13,5 @@ export const status500OutputSchema = {
       message: { type: 'string' },
     },
   },
-  required: ['status'],
+  required: ['error'],
 };
