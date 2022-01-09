@@ -5,13 +5,3 @@ export const statusOutputSchema = {
   },
   required: ['status'],
 };
-
-export const status500OutputSchema = {
-  type: 'object',
-  properties: {
-    error: {
-      message: { type: 'string' },
-    },
-  },
-  required: ['error'],
-};

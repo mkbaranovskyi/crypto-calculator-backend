@@ -6,7 +6,7 @@ import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { EmailEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
-import { status500OutputSchema, statusOutputSchema } from '../../shared/models/outputs';
+import { statusOutputSchema } from '../../shared/models/outputs';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
 import { IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
 import { signUpOutputSchema } from './outputs';
@@ -37,10 +37,6 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
         },
         response: {
           200: signUpOutputSchema,
-          300: statusOutputSchema,
-          400: statusOutputSchema,
-          401: statusOutputSchema,
-          500: status500OutputSchema,
         },
       },
     },
@@ -106,10 +102,6 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
         },
         response: {
           200: statusOutputSchema,
-          300: statusOutputSchema,
-          400: statusOutputSchema,
-          401: statusOutputSchema,
-          500: status500OutputSchema,
         },
       },
     },
@@ -151,10 +143,6 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
         },
         response: {
           200: statusOutputSchema,
-          300: statusOutputSchema,
-          400: statusOutputSchema,
-          401: statusOutputSchema,
-          500: status500OutputSchema,
         },
       },
     },
