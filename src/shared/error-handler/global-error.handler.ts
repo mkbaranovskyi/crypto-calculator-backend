@@ -11,7 +11,7 @@ export const globalErrorHandler = (server: FastifyInstance) => {
         validationViewModelErrors.push({ constrain: validateError.keyword, message: validateError.message });
       }
 
-      reply.status(400).send({ erros: validationViewModelErrors });
+      reply.status(400).send({ errors: validationViewModelErrors });
       return;
     }
 

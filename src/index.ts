@@ -6,9 +6,10 @@ import { connectToDB } from './shared/database';
 import { globalErrorHandler } from './shared/error-handler';
 import { registerFastifySwagger } from './shared/plugins/swagger';
 import { LocalStorage } from './shared/services';
+import { LoggerInstance } from './shared/services/logger';
 
 const PORT = process.env.PORT ?? 5000;
-const server = fastify({ logger: true });
+const server = fastify({ logger: LoggerInstance });
 
 const start = async () => {
   globalErrorHandler(server);
