@@ -8,6 +8,7 @@ export const connectToDB = async () => {
     url: mongoConfig.url,
     useUnifiedTopology: true,
     useNewUrlParser: true,
+    authSource: 'admin',
     entities: [UserEntity, VerificationCodesEntity],
   });
 };

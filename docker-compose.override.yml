@@ -1,0 +1,27 @@
+services:
+  api:
+    image: crypto-calculator:development
+    build:
+      context: ./
+      dockerfile: dockerfile.dev
+    volumes:
+      - ./:/app
+      - /app/node_modules/
+    ports:
+      - 9229:9229
+
+  mongo-express:
+    image: mongo-express
+    restart: unless-stopped
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_AUTH_USERNAME: root
+      ME_CONFIG_MONGODB_AUTH_PASSWORD: pass
+      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
+      ME_CONFIG_MONGODB_SERVER: mongo
+    logging:
+      driver: none
+
+volumes: 
+  mongo-express:

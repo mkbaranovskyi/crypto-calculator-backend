@@ -1,0 +1,22 @@
+services:
+  api:
+    image: crypto-calculator:production
+    build:
+      context: ./
+      dockerfile: dockerfile
+    ports:
+      - 5000:5000
+    env_file: ./.env
+
+  mongo:
+    image: mongo
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    volumes:
+      - ./docker/mongo:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    logging:
+      driver: none
