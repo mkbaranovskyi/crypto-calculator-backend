@@ -1,11 +1,16 @@
 import { FastifyInstance } from 'fastify';
 
-export const globalErrorHandler = (server: FastifyInstance) => {
+interface IValidationViewModelError {
+  constrain: string;
+  message: string;
+}
+
+export const registerGlobal = (server: FastifyInstance) => {
   server.setErrorHandler((error, request, reply) => {
     server.log.error(error);
 
     if (Array.isArray(error.validation) && error.validation.length) {
-      const validationViewModelErrors: Array<{ constrain: string; message: string }> = new Array();
+      const validationViewModelErrors: Array<IValidationViewModelError> = [];
 
       for (const validateError of error.validation) {
         validationViewModelErrors.push({ constrain: validateError.keyword, message: validateError.message });

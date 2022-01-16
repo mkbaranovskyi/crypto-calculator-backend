@@ -1,2 +1,2 @@
 export * from './email.enum';
-export * from './schema-tags.enum';
+export * from './open-api-tags.enum';

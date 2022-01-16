@@ -4,7 +4,7 @@ import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { DateTime } from 'luxon';
 import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
-import { EmailEnum, SchemaTagsEnum } from '../../shared/enums';
+import { EmailEnum, OpenAPITagsEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
 import { statusOutputSchema } from '../../shared/models/outputs';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
@@ -21,7 +21,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     '/sign-up',
     {
       schema: {
-        tags: [SchemaTagsEnum.AUTH],
+        tags: [OpenAPITagsEnum.AUTH],
         summary: 'Sign up',
         body: {
           type: 'object',
@@ -85,7 +85,7 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
     '/email/validate',
     {
       schema: {
-        tags: [SchemaTagsEnum.AUTH],
+        tags: [OpenAPITagsEnum.AUTH],
         summary: 'Verify email here',
         body: {
           type: 'object',
@@ -133,7 +133,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
     '/email/forgot',
     {
       schema: {
-        tags: [SchemaTagsEnum.AUTH],
+        tags: [OpenAPITagsEnum.AUTH],
         summary: 'Forgot email here',
         body: {
           type: 'object',
