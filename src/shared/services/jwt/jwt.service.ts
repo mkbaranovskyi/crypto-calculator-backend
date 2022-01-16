@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { DateTime } from 'luxon';
+import { LoggerInstance } from '../logger';
 import { IGenerateTokensInput } from './inputs';
 import { IGenerateTokensOutput } from './outputs';
 
@@ -50,7 +51,8 @@ export const decodeToken = async (token: string, jwtSecret: string): Promise<str
         if (err) {
           throw err;
         } else if (!decoded || !decoded.sessionKey) {
-          throw new Error('Error while decorating token ');
+          LoggerInstance.info('Token decoding error.');
+          throw new Error('Error while decorating token.');
         } else {
           res(decoded);
         }

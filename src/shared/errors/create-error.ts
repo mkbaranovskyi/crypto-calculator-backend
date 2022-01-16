@@ -1,10 +1,10 @@
-interface IError extends Error {
-  status?: number;
+export interface IError extends Error {
+  statusCode?: number;
 }
 
 export const createError = (status: number, text: string) => {
   const error: IError = new Error(text);
-  error.status = status;
+  error.statusCode = status;
 
   return error;
 };
