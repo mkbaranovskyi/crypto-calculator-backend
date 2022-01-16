@@ -6,6 +6,7 @@ import { LocalStorage } from './shared/services';
 
 
 const PORT = Number(process.env.PORT) ?? 5000;
+
 const server = fastify({ logger: true });
 
 const start = async () => {
