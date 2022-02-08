@@ -8,8 +8,7 @@ import { EmailEnum, OpenAPITagsEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
 import { statusOutputSchema } from '../../shared/models/outputs';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
-import { LoggerInstance } from '../../shared/services/logger';
-import { IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
+import { IBodyCodeEmail, IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
 import { signUpOutputSchema } from './outputs';
 
 const ajv = new Ajv();
@@ -153,7 +152,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
       const user = await UserEntity.findOne({ email });
 
       if (!user) {
-        throw createError(400, 'Email does not exist.');
+        throw createError(401, 'Email does not exist.');
       }
 
       const { code, expiresAt } = VerificationCodeService.createCode();
@@ -172,6 +171,53 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
       await VerificationCodesEntity.create({ userId: String(user._id), code, expiresAt }).save();
 
       await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
+
+      return { status: 'ok!' };
+    }
+  );
+};
+
+export const codeEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
+  server.post<{ Body: IBodyCodeEmail }>(
+    '/email/code',
+    {
+      schema: {
+        tags: [OpenAPITagsEnum.AUTH],
+        summary: 'Code email here',
+        body: {
+          type: 'object',
+          properties: {
+            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+            code: { type: 'string', minLength: 6, maxLength: 6 },
+          },
+          required: ['email', 'code'],
+        },
+        response: {
+          200: statusOutputSchema,
+        },
+      },
+    },
+    async (req, reply) => {
+      const { email, code: receivedCode } = req.body;
+
+      const user = await UserEntity.findOne({ email });
+
+      if (!user) {
+        throw createError(401, 'Email does not exist.');
+      }
+
+      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+
+      if (!savedCode || savedCode.code !== receivedCode) {
+        throw createError(401, 'Invalid code sent.');
+      }
+
+      const currentDate = DateTime.utc();
+      const codeExpiresAt = DateTime.fromJSDate(savedCode.expiresAt);
+
+      if (+currentDate > +codeExpiresAt) {
+        throw createError(401, 'Code lifetime expired.');
+      }
 
       return { status: 'ok!' };
     }
