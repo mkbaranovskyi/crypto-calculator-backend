@@ -110,17 +110,7 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       const user = LocalStorage.getUser();
 
       const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
-
-      if (!savedCode || savedCode.code !== receivedCode) {
-        throw createError(401, 'Invalid code sent.');
-      }
-
-      const currentDate = DateTime.utc();
-      const codeExpiresAt = DateTime.fromJSDate(savedCode.expiresAt);
-
-      if (+currentDate > +codeExpiresAt) {
-        throw createError(401, 'Code lifetime expired.');
-      }
+      VerificationCodeService.validateCode(savedCode, receivedCode);
 
       return { status: 'ok!' };
     }
@@ -208,16 +198,7 @@ export const codeEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (
 
       const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
 
-      if (!savedCode || savedCode.code !== receivedCode) {
-        throw createError(401, 'Invalid code sent.');
-      }
-
-      const currentDate = DateTime.utc();
-      const codeExpiresAt = DateTime.fromJSDate(savedCode.expiresAt);
-
-      if (+currentDate > +codeExpiresAt) {
-        throw createError(401, 'Code lifetime expired.');
-      }
+      VerificationCodeService.validateCode(savedCode, receivedCode);
 
       return { status: 'ok!' };
     }
