@@ -1,4 +1,3 @@
-import Ajv from 'ajv';
 import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { DateTime } from 'luxon';
@@ -10,8 +9,6 @@ import { statusOutputSchema } from '../../shared/models/outputs';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
 import { IBodyCodeEmail, IBodySignUp } from './inputs';
 import { signUpOutputSchema } from './outputs';
-
-const ajv = new Ajv();
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
@@ -25,7 +22,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+            email: { type: 'string', format: 'email', example: 'only@test.com' },
             password: {
               type: 'string',
               minLength: 8,
@@ -127,7 +124,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+            email: { type: 'string', format: 'email', example: 'only@test.com' },
           },
           required: ['email'],
         },
@@ -177,7 +174,7 @@ export const codeEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+            email: { type: 'string', format: 'email', example: 'only@test.com' },
             code: { type: 'string', minLength: 6, maxLength: 6 },
           },
           required: ['email', 'code'],

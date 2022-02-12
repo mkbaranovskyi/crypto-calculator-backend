@@ -1,9 +1,20 @@
+import Ajv from 'ajv';
+import ajvFormats from 'ajv-formats';
 import fastify from 'fastify';
 import { endpointRouter } from './endpoints/endpoint.router';
 import { connectToDB } from './shared/database';
 import { registerGlobal } from './shared/error-handler';
 import { registerFastifySwagger } from './shared/plugins/swagger';
 import { LoggerInstance } from './shared/services/logger';
+
+const ajv = new Ajv({
+  strict: true,
+  strictTypes: true,
+  removeAdditional: true,
+  useDefaults: true,
+  allErrors: true,
+});
+ajvFormats(ajv, ['email']);
 
 const PORT = Number(process.env.PORT) ?? 5000;
 const server = fastify({ logger: LoggerInstance });
