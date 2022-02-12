@@ -8,7 +8,7 @@ import { EmailEnum, OpenAPITagsEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
 import { statusOutputSchema } from '../../shared/models/outputs';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
-import { IBodyCodeEmail, IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
+import { IBodyCodeEmail, IBodySignUp } from './inputs';
 import { signUpOutputSchema } from './outputs';
 
 const ajv = new Ajv();
@@ -80,7 +80,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
 };
 
 export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
-  server.post<{ Body: IBodyValidateEmail; Headers: IHeadersValidateEmail }>(
+  server.post<{ Body: { code: string }; Headers: { authorization: string } }>(
     '/email/validate',
     {
       schema: {
@@ -118,7 +118,7 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
 };
 
 export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
-  server.post<{ Body: IBodyForgotEmail }>(
+  server.post<{ Body: { email: string } }>(
     '/email/forgot',
     {
       schema: {
