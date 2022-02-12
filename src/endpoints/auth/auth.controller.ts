@@ -5,8 +5,9 @@ import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { EmailEnum, OpenAPITagsEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
-import { statusOutputSchema } from '../../shared/models/outputs';
+import { statusOutputSchema } from '../../shared/models';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
+import { statusOutputSuccess } from '../../shared/view-models';
 import { IBodyCodeEmail, IBodySignUp } from './inputs';
 import { signUpOutputSchema } from './outputs';
 
@@ -109,7 +110,7 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
       VerificationCodeService.validateCode(savedCode, receivedCode);
 
-      return { status: 'ok!' };
+      return statusOutputSuccess;
     }
   );
 };
@@ -159,7 +160,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
 
       await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
-      return { status: 'ok!' };
+      return statusOutputSuccess;
     }
   );
 };
@@ -197,7 +198,7 @@ export const codeEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (
 
       VerificationCodeService.validateCode(savedCode, receivedCode);
 
-      return { status: 'ok!' };
+      return statusOutputSuccess;
     }
   );
 };
