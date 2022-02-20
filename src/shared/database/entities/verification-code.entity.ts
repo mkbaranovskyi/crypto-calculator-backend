@@ -1,7 +1,7 @@
 import { Column, Entity, UpdateDateColumn } from 'typeorm';
 import { Base } from './base.entity';
 
-@Entity()
+@Entity('verificationCodes')
 export class VerificationCodesEntity extends Base {
   @Column()
   userId!: string;

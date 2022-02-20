@@ -33,7 +33,7 @@ export const sendMessageToEmail = async (toEmail: string, code: string, type: st
       sendData.subject = 'Crypto-Financial-Calculator: регистрация аккаунта';
       sendData.html = `<h3>Ваш код активации аккаунта:</h3>\n<h2>${code}</h2>`;
       break;
-    case EmailEnum.REGISTRATION_LETTER:
+    case EmailEnum.RECOVERY_LETTER:
       sendData.subject = 'Crypto-Financial-Calculator: восстановление аккаунта';
       sendData.html = `<h3>Ваш код восстановления аккаунта:</h3>\n<h2>${code}</h2>`;
       break;

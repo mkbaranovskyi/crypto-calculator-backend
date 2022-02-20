@@ -1,4 +1,3 @@
-import Ajv from 'ajv';
 import { randomUUID } from 'crypto';
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { DateTime } from 'luxon';
@@ -6,13 +5,11 @@ import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { EmailEnum, OpenAPITagsEnum } from '../../shared/enums';
 import { createError } from '../../shared/errors';
-import { statusOutputSchema } from '../../shared/models/outputs';
+import { statusOutputSchema } from '../../shared/models';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
-import { LoggerInstance } from '../../shared/services/logger';
-import { IBodyForgotEmail, IBodySignUp, IBodyValidateEmail, IHeadersValidateEmail } from './inputs';
+import { statusOutputSuccess } from '../../shared/view-models';
+import { IBodyCodeEmail, IBodySignUp } from './inputs';
 import { signUpOutputSchema } from './outputs';
-
-const ajv = new Ajv();
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
@@ -26,7 +23,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+            email: { type: 'string', format: 'email', example: 'only@test.com' },
             password: {
               type: 'string',
               minLength: 8,
@@ -81,7 +78,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
 };
 
 export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
-  server.post<{ Body: IBodyValidateEmail; Headers: IHeadersValidateEmail }>(
+  server.post<{ Body: { code: string }; Headers: { authorization: string } }>(
     '/email/validate',
     {
       schema: {
@@ -111,25 +108,15 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       const user = LocalStorage.getUser();
 
       const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+      VerificationCodeService.validateCode(savedCode, receivedCode);
 
-      if (!savedCode || savedCode.code !== receivedCode) {
-        throw createError(401, 'Invalid code sent.');
-      }
-
-      const currentDate = DateTime.utc();
-      const codeExpiresAt = DateTime.fromJSDate(savedCode.expiresAt);
-
-      if (+currentDate > +codeExpiresAt) {
-        throw createError(401, 'Code lifetime expired.');
-      }
-
-      return { status: 'ok!' };
+      return statusOutputSuccess;
     }
   );
 };
 
 export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
-  server.post<{ Body: IBodyForgotEmail }>(
+  server.post<{ Body: { email: string } }>(
     '/email/forgot',
     {
       schema: {
@@ -138,7 +125,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', minLength: 6, maxLength: 256, example: 'only@test.com' },
+            email: { type: 'string', format: 'email', example: 'only@test.com' },
           },
           required: ['email'],
         },
@@ -153,7 +140,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
       const user = await UserEntity.findOne({ email });
 
       if (!user) {
-        throw createError(400, 'Email does not exist.');
+        throw createError(401, 'Email does not exist.');
       }
 
       const { code, expiresAt } = VerificationCodeService.createCode();
@@ -173,7 +160,45 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
 
       await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
-      return { status: 'ok!' };
+      return statusOutputSuccess;
+    }
+  );
+};
+
+export const codeEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
+  server.post<{ Body: IBodyCodeEmail }>(
+    '/email/code',
+    {
+      schema: {
+        tags: [OpenAPITagsEnum.AUTH],
+        summary: 'Code email here',
+        body: {
+          type: 'object',
+          properties: {
+            email: { type: 'string', format: 'email', example: 'only@test.com' },
+            code: { type: 'string', minLength: 6, maxLength: 6 },
+          },
+          required: ['email', 'code'],
+        },
+        response: {
+          200: statusOutputSchema,
+        },
+      },
+    },
+    async (req, reply) => {
+      const { email, code: receivedCode } = req.body;
+
+      const user = await UserEntity.findOne({ email });
+
+      if (!user) {
+        throw createError(401, 'Email does not exist.');
+      }
+
+      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+
+      VerificationCodeService.validateCode(savedCode, receivedCode);
+
+      return statusOutputSuccess;
     }
   );
 };
