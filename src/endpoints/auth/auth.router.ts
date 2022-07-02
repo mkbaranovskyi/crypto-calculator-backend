@@ -1,7 +1,7 @@
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { jwtConfig } from '../../shared/configs';
 import { checkAccessToken } from '../../shared/hooks';
-import { codeEmailRouter, forgotEmailRouter, signUpRouter, validateEmailRouter } from './auth.controller';
+import { codeEmailRouter, forgotEmailRouter, newPasswordEmailRouter, signUpRouter, validateEmailRouter } from './auth.controller';
 
 const { secret } = jwtConfig;
 
@@ -17,4 +17,5 @@ export const authRouter: FastifyPluginAsync<FastifyPluginOptions> = async (serve
 
   await server.register(forgotEmailRouter);
   await server.register(codeEmailRouter);
+  await server.register(newPasswordEmailRouter);
 };

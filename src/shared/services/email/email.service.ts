@@ -41,5 +41,10 @@ export const sendMessageToEmail = async (toEmail: string, code: string, type: st
       throw createError(500, 'Server error while sending email.');
   }
 
-  await transporter.sendMail(sendData);
+  try {
+    await transporter.sendMail(sendData);
+  } catch (err) {
+    console.log(err);
+    throw createError(502, 'Bad gateway');
+  }
 };
