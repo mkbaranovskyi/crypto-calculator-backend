@@ -12,5 +12,5 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm i --only=production
 COPY --from=build /app/lib /app/lib
-EXPOSE 5000
+EXPOSE 5001
 CMD npm run start

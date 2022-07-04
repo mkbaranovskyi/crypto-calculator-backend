@@ -47,7 +47,7 @@ export const decodeToken = async (token: string, jwtSecret: string): Promise<str
 
   try {
     result = await new Promise<jwt.JwtPayload>((res, rej) => {
-      jwt.verify(token, jwtSecret, (err, decoded) => {
+      jwt.verify(token, jwtSecret, (err, decoded: any) => {
         if (err) {
           throw err;
         } else if (!decoded || !decoded.sessionKey) {

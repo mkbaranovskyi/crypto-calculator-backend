@@ -1,4 +1,4 @@
-export interface IBodySignUp {
+export interface ISignUpBodyInput {
   email: string;
   password: string;
 }
