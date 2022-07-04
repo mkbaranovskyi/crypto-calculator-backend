@@ -1,7 +1,6 @@
 import { randomInt } from 'crypto';
 import { DateTime } from 'luxon';
 import { VerificationCodesEntity } from '../../database';
-import { createError } from '../../errors';
 import { IGenerageCodeOutput } from './outputs';
 
 export const createCode = (): IGenerageCodeOutput => {
@@ -15,13 +14,13 @@ export const createCode = (): IGenerageCodeOutput => {
 
 export const validateCode = (savedCode: VerificationCodesEntity | undefined, receivedCode: string): void => {
   if (!savedCode || savedCode.code !== receivedCode) {
-    throw createError(401, 'Invalid code sent.');
+    throw new Error('Invalid code sent.');
   }
 
   const currentDate = DateTime.utc();
   const codeExpiresAt = DateTime.fromJSDate(savedCode.expiresAt);
 
   if (+currentDate > +codeExpiresAt) {
-    throw createError(401, 'Code lifetime expired.');
+    throw new Error('Code lifetime expired..');
   }
 };

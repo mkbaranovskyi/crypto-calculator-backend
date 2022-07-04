@@ -16,6 +16,6 @@ export class UserEntity extends Base {
   @Column()
   sessionKey!: string;
 
-  @Column({ default: UserStateEnum.NOT_VERIFIED })
-  state!: UserStateEnum;
+  @Column()
+  state?: UserStateEnum = UserStateEnum.NOT_VERIFIED;
 }

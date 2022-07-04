@@ -1,7 +1,7 @@
 import { createTransport } from 'nodemailer';
 import { smtpConfig } from '../../configs/index';
 import { EmailEnum } from '../../enums';
-import { createError } from '../../errors';
+import { createHTTPException } from '../../errors';
 
 interface ISendData {
   from: string;
@@ -38,13 +38,13 @@ export const sendMessageToEmail = async (toEmail: string, code: string, type: st
       sendData.html = `<h3>Ваш код восстановления аккаунта:</h3>\n<h2>${code}</h2>`;
       break;
     default:
-      throw createError(500, 'Server error while sending email.');
+      throw createHTTPException(500, 'Server error while sending email.');
   }
 
   try {
     await transporter.sendMail(sendData);
   } catch (err) {
     console.log(err);
-    throw createError(502, 'Bad gateway');
+    throw createHTTPException(502, 'Bad gateway');
   }
 };

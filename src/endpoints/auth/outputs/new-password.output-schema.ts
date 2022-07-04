@@ -1,4 +1,4 @@
-export const newPasswordEmailOutputSchema = {
+export const newPasswordOutputSchema = {
   type: 'object',
   properties: {
     accessToken: { type: 'string' },

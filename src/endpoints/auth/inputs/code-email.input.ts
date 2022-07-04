@@ -1,4 +1,4 @@
-export interface IBodyCodeEmail {
+export interface ICodeEmailBodyInput {
   email: string;
   code: string;
 }
