@@ -44,9 +44,6 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     async (req, reply) => {
       const { email, password } = req.body;
 
-      // todo 28.11.2021: remove later - only here for testing
-      await UserEntity.delete({ email });
-
       const user = await UserEntity.findOne({ email });
 
       if (user) {
@@ -73,7 +70,7 @@ export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
 
       await VerificationCodesEntity.create({ userId: String(dataUser._id), code: '123456', expiresAt }).save();
 
-      // await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
 
       return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
     }
@@ -170,7 +167,7 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
       }
 
       await VerificationCodesEntity.create({ userId: String(user._id), code, expiresAt }).save();
-      // await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
       return statusOutputSuccess;
     }
