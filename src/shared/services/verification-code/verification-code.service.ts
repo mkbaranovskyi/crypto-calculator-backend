@@ -12,7 +12,7 @@ export const createCode = (): IGenerageCodeOutput => {
   return { code, expiresAt };
 };
 
-export const validateCode = (savedCode: VerificationCodesEntity | undefined, receivedCode: string): void => {
+export const validateCode = (savedCode: VerificationCodesEntity | null, receivedCode: string): void => {
   if (!savedCode || savedCode.code !== receivedCode) {
     throw new Error('Invalid code sent.');
   }

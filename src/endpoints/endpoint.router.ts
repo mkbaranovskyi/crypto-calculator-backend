@@ -1,6 +1,6 @@
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { initAsyncLocalStorage } from '../shared/services/async-local-storage';
-import { authRouter } from './auth/auth.router';
+import { authRouter } from './auth';
 
 export const endpointRouter: FastifyPluginAsync<FastifyPluginOptions> = async (instance) => {
   instance.addHook('preHandler', (req, reply, done) => {

@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 
 interface IValidationViewModelError {
   constrain: string;
-  message: string;
+  message?: string;
 }
 
 export const registerGlobal = (server: FastifyInstance) => {
