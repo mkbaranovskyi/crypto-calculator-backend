@@ -5,7 +5,7 @@ import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { EmailEnum, OpenAPITagsEnum } from '../../shared/enums';
 import { UserStateEnum } from '../../shared/enums/user-state.enum';
-import { createHTTPException } from '../../shared/errors';
+import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { statusOutputSchema } from '../../shared/models';
 import { EmailService, HashingService, JWTService, LocalStorage, VerificationCodeService } from '../../shared/services';
 import { statusOutputSuccess } from '../../shared/view-models';
@@ -16,74 +16,73 @@ import { newPasswordOutputSchema } from './outputs/new-password.output-schema';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
-  server.post<{ Body: ISignUpBodyInput }>(
-    '/sign-up',
-    {
-      schema: {
-        tags: [OpenAPITagsEnum.AUTH],
-        summary: 'Sign up',
-        body: {
-          type: 'object',
-          properties: {
-            email: { type: 'string', format: 'email', example: 'only@test.com' },
-            password: {
-              type: 'string',
-              minLength: 8,
-              maxLength: 256,
-              example: 'passwordTest',
-            },
-          },
-          required: ['email', 'password'],
-        },
-        response: {
-          200: signUpOutputSchema,
-        },
-      },
-    },
-    async (req, reply) => {
-      const { email, password } = req.body;
+// export const signUpRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
+//   server.post<{ Body: ISignUpBodyInput }>(
+//     '/sign-up',
+//     {
+//       schema: {
+//         // tags: [OpenAPITagsEnum.AUTH],
+//         // summary: 'Sign up',
+//         body: {
+//           type: 'object',
+//           properties: {
+//             email: { type: 'string', format: 'email' },
+//             password: {
+//               type: 'string',
+//               minLength: 8,
+//               maxLength: 256,
+//             },
+//           },
+//           required: ['email', 'password'],
+//         },
+//         response: {
+//           200: signUpOutputSchema,
+//         },
+//       },
+//     },
+//     async (req, reply) => {
+//       const { email, password } = req.body;
 
-      const user = await UserEntity.findOne({ email });
+//       const user = await UserEntity.findOneBy({ email });
 
-      if (user) {
-        throw createHTTPException(400, 'User exists.');
-      }
+//       if (user) {
+//         throw new BadRequestException('User exists.');
+//       }
 
-      const sessionKey = randomUUID();
-      const salt = randomUUID();
-      const passwordHash = HashingService.createHash(password, sessionKey);
-      const dataUser = UserEntity.create({ email, passwordHash });
+//       const sessionKey = randomUUID();
+//       const salt = randomUUID();
+//       const passwordHash = HashingService.createHash(password, sessionKey);
+//       const dataUser = UserEntity.create({ email, passwordHash });
 
-      const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await JWTService.generateTokens({
-        sessionKey,
-        jwtSecret: secret,
-        accessDeathDate,
-        refreshDeathDate,
-      });
+//       const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } = await JWTService.generateTokens({
+//         sessionKey,
+//         jwtSecret: secret,
+//         accessDeathDate,
+//         refreshDeathDate,
+//       });
 
-      dataUser.sessionKey = sessionKey;
-      dataUser.salt = salt;
-      await dataUser.save();
+//       dataUser.sessionKey = sessionKey;
+//       dataUser.salt = salt;
+//       await dataUser.save();
 
-      const { code, expiresAt } = VerificationCodeService.createCode();
+//       const { code, expiresAt } = VerificationCodeService.createCode();
 
-      await VerificationCodesEntity.create({ userId: String(dataUser._id), code: '123456', expiresAt }).save();
+//       await VerificationCodesEntity.create({ userId: String(dataUser._id), code: '123456', expiresAt }).save();
 
-      await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
+//       await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
 
-      return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
-    }
-  );
-};
+//       return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
+//     }
+//   );
+// };
 
 export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (server, options) => {
   server.post<{ Body: { code: string }; Headers: { authorization: string } }>(
     '/email/validate',
     {
       schema: {
-        tags: [OpenAPITagsEnum.AUTH],
-        summary: 'Verify email here',
+        // tags: [OpenAPITagsEnum.AUTH],
+        // summary: 'Verify email here',
         body: {
           type: 'object',
           properties: {
@@ -107,13 +106,12 @@ export const validateEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = asy
       const { code: receivedCode } = req.body;
       const user = LocalStorage.getUser();
 
-      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+      const savedCode = await VerificationCodesEntity.findOneBy({ userId: String(user._id) });
 
       try {
         VerificationCodeService.validateCode(savedCode, receivedCode);
       } catch (err: any) {
-        console.log('TUTTT');
-        throw createHTTPException(401, err.message);
+        throw new UnauthorizedException(err.message);
       }
 
       await UserEntity.update(user._id, { state: UserStateEnum.VERIFIED });
@@ -128,12 +126,12 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
     '/email/forgot',
     {
       schema: {
-        tags: [OpenAPITagsEnum.AUTH],
-        summary: 'Forgot email here',
+        // tags: [OpenAPITagsEnum.AUTH],
+        // summary: 'Forgot email here',
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', format: 'email', example: 'only@test.com' },
+            email: { type: 'string', format: 'email' },
           },
           required: ['email'],
         },
@@ -145,22 +143,22 @@ export const forgotEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async
     async (req, reply) => {
       const { email } = req.body;
 
-      const user = await UserEntity.findOne({ email });
+      const user = await UserEntity.findOneBy({ email });
 
       if (!user) {
-        throw createHTTPException(401, 'Email does not exist.');
+        throw new UnauthorizedException('Email does not exist.');
       }
 
       const { code, expiresAt } = VerificationCodeService.createCode();
 
-      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+      const savedCode = await VerificationCodesEntity.findOneBy({ userId: String(user._id) });
 
       if (savedCode) {
         const currentDate = DateTime.utc();
         const codeExpiresAt = DateTime.fromJSDate(savedCode.createdAt).plus({ seconds: 90 });
 
         if (+currentDate < +codeExpiresAt) {
-          throw createHTTPException(400, 'Wait before you can request another code.');
+          throw new BadRequestException('Wait before you can request another code.');
         }
 
         await VerificationCodesEntity.delete({ userId: String(user._id) });
@@ -179,12 +177,12 @@ export const codeEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (
     '/email/code',
     {
       schema: {
-        tags: [OpenAPITagsEnum.AUTH],
-        summary: 'Code email here',
+        // tags: [OpenAPITagsEnum.AUTH],
+        // summary: 'Code email here',
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', format: 'email', example: 'only@test.com' },
+            email: { type: 'string', format: 'email' },
             code: { type: 'string', minLength: 6, maxLength: 6 },
           },
           required: ['email', 'code'],
@@ -197,18 +195,18 @@ export const codeEmailRouter: FastifyPluginAsync<FastifyPluginOptions> = async (
     async (req, reply) => {
       const { email, code: receivedCode } = req.body;
 
-      const user = await UserEntity.findOne({ email });
+      const user = await UserEntity.findOneBy({ email });
 
       if (!user) {
-        throw createHTTPException(401, 'Email does not exist.');
+        throw new UnauthorizedException('Email does not exist.');
       }
 
-      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+      const savedCode = await VerificationCodesEntity.findOneBy({ userId: String(user._id) });
 
       try {
         VerificationCodeService.validateCode(savedCode, receivedCode);
       } catch (err: any) {
-        throw createHTTPException(401, err.message);
+        throw new UnauthorizedException(err.message);
       }
 
       return statusOutputSuccess;
@@ -221,17 +219,16 @@ export const newPasswordRouter: FastifyPluginAsync<FastifyPluginOptions> = async
     '/email/new-password',
     {
       schema: {
-        tags: [OpenAPITagsEnum.AUTH],
-        summary: 'New password email here',
+        // tags: [OpenAPITagsEnum.AUTH],
+        // summary: 'New password email here',
         body: {
           type: 'object',
           properties: {
-            email: { type: 'string', format: 'email', example: 'only@test.com' },
+            email: { type: 'string', format: 'email' },
             password: {
               type: 'string',
               minLength: 8,
               maxLength: 256,
-              example: 'passwordTest',
             },
             code: { type: 'string', minLength: 6, maxLength: 6 },
           },
@@ -245,18 +242,18 @@ export const newPasswordRouter: FastifyPluginAsync<FastifyPluginOptions> = async
     async (req, reply) => {
       const { email, code: receivedCode, password: newPassword } = req.body;
 
-      const user = await UserEntity.findOne({ email });
+      const user = await UserEntity.findOneBy({ email });
 
       if (!user) {
-        throw createHTTPException(401, 'Email does not exist.');
+        throw new UnauthorizedException('Email does not exist.');
       }
 
-      const savedCode = await VerificationCodesEntity.findOne({ userId: String(user._id) });
+      const savedCode = await VerificationCodesEntity.findOneBy({ userId: String(user._id) });
 
       try {
         VerificationCodeService.validateCode(savedCode, receivedCode);
       } catch (err: any) {
-        throw createHTTPException(401, err.message);
+        throw new UnauthorizedException(err.message);
       }
 
       const sessionKey = randomUUID();
