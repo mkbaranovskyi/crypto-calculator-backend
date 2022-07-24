@@ -13,7 +13,10 @@ export const registerGlobal = (server: FastifyInstance) => {
       const validationViewModelErrors: Array<IValidationViewModelError> = [];
 
       for (const validateError of error.validation) {
-        validationViewModelErrors.push({ constrain: validateError.keyword, message: validateError.message });
+        validationViewModelErrors.push({
+          constrain: validateError.keyword,
+          message: validateError.message,
+        });
       }
 
       reply.status(400).send({ errors: validationViewModelErrors });

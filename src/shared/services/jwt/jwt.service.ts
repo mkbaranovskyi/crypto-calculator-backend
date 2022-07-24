@@ -4,7 +4,11 @@ import { LoggerInstance } from '../logger';
 import { IGenerateTokensInput } from './inputs';
 import { IGenerateTokensOutput } from './outputs';
 
-const createToken = async (sessionKey: string, jwtSecret: string, tokenDeathDate: string): Promise<string> => {
+const createToken = async (
+  sessionKey: string,
+  jwtSecret: string,
+  tokenDeathDate: string
+): Promise<string> => {
   return new Promise((res) => {
     jwt.sign({ sessionKey }, jwtSecret, { expiresIn: tokenDeathDate }, (err, token) => {
       if (err) {

@@ -23,5 +23,5 @@ services:
     logging:
       driver: none
 
-volumes: 
+volumes:
   mongo-express:
