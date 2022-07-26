@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import fastifySwagger, { SwaggerOptions } from 'fastify-swagger';
+import fastifySwagger, { SwaggerOptions } from '@fastify/swagger';
 
 export const registerFastifySwagger = (server: FastifyInstance) => {
   server.register<SwaggerOptions>(fastifySwagger, {

@@ -1,5 +1,5 @@
 import { UserEntity } from '../database';
-import { createError } from '../errors';
+import { BadRequestException, UnauthorizedException } from '../errors';
 import { JWTService, LocalStorage } from '../services';
 import { LoggerInstance } from '../services/logger';
 
@@ -14,14 +14,14 @@ export const checkAccessToken = async (jwtSecret: string, token?: string): Promi
 
   if (!sessionKey) {
     LoggerInstance.info('Invalid session key in access token.');
-    throw createError(400, 'Invalid access token.');
+    throw new BadRequestException('Invalid access token.');
   }
 
-  const user = await UserEntity.findOne({ sessionKey });
+  const user = await UserEntity.findOneBy({ sessionKey });
 
   if (!user) {
     LoggerInstance.info('User does not have a session key.');
-    throw createError(401, 'Invalid access token.');
+    throw new UnauthorizedException(401, 'Invalid access token.');
   }
 
   LocalStorage.setUser(user);

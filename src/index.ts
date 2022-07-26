@@ -16,7 +16,7 @@ const ajv = new Ajv({
 });
 ajvFormats(ajv, ['email']);
 
-const PORT = Number(process.env.PORT) ?? 5000;
+const PORT = Number(process.env.PORT) ?? 5001;
 const server = fastify({ logger: LoggerInstance });
 
 const start = async () => {
