@@ -4,6 +4,7 @@ import { checkAccessToken } from '../../shared/hooks';
 import { codeEmailRoute } from './code-email.route';
 import { forgotEmailRoute } from './forgot-email.route';
 import { newPasswordRoute } from './new-password.route';
+import { signInRoute } from './sign-in.route';
 import { signUpRoute } from './sign-up.route';
 import { validateEmailRoute } from './validate-email.route';
 
@@ -18,5 +19,10 @@ export const authRouter: FastifyPluginAsync<FastifyPluginOptions> = async (serve
     server.route(validateEmailRoute);
   });
 
-  server.route(signUpRoute).route(forgotEmailRoute).route(codeEmailRoute).route(newPasswordRoute);
+  server
+    .route(signUpRoute)
+    .route(forgotEmailRoute)
+    .route(codeEmailRoute)
+    .route(newPasswordRoute)
+    .route(signInRoute);
 };
