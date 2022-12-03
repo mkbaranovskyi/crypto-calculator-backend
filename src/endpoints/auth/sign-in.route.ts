@@ -20,7 +20,7 @@ export const signInRoute: RouteCustomOptions<ISignUpOrInBodyInput> = {
       throw new BadRequestException('User does not exist.');
     }
 
-    const { passwordHash, sessionKey } = user!;
+    const { passwordHash, sessionKey } = user;
     const inputPasswordHash = HashingService.createHash(inputPassword, sessionKey);
 
     if (inputPasswordHash !== passwordHash) {
