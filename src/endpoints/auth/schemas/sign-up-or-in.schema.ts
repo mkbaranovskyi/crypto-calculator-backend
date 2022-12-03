@@ -1,9 +1,9 @@
-export interface ISignUpBodyInput {
+export interface ISignUpOrInBodyInput {
   email: string;
   password: string;
 }
 
-export const signUpSchema = {
+export const signUpOrInSchema = {
   body: {
     type: 'object',
     properties: {
