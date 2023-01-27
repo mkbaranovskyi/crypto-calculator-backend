@@ -1,6 +1,6 @@
 const port = Number(process.env.SMTP_PORT);
 
-if (port === NaN) {
+if (Number.isNaN(port)) {
   throw new Error('process.env.SMTP_PORT is NaN');
 }
 if (!process.env.SMTP_HOST) {
