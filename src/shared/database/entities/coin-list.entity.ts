@@ -1,19 +1,8 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  ObjectID,
-  ObjectIdColumn,
-  PrimaryGeneratedColumn,
-  Unique,
-} from 'typeorm';
+import { Column, Entity } from 'typeorm';
+import { Base } from './base.entity';
 
 @Entity('coinList')
-export class CoinListEntity extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  @ObjectIdColumn()
-  _id!: ObjectID;
-
+export class CoinListEntity extends Base {
   @Column({ unique: true })
   coinId!: string;
 
