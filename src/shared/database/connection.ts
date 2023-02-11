@@ -1,14 +1,15 @@
-import { createConnection } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { mongoConfig } from '../configs';
-import { UserEntity, VerificationCodesEntity } from './entities';
+import { CoinListEntity, UserEntity, VerificationCodesEntity } from './entities';
 
 export const connectToDB = async () => {
-  await createConnection({
+  await new DataSource({
     type: 'mongodb',
     url: mongoConfig.url,
     useUnifiedTopology: true,
     useNewUrlParser: true,
+    synchronize: true,
     authSource: 'admin',
-    entities: [UserEntity, VerificationCodesEntity],
-  });
+    entities: [UserEntity, VerificationCodesEntity, CoinListEntity],
+  }).initialize();
 };

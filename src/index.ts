@@ -22,8 +22,8 @@ const server = fastify({ logger: LoggerInstance });
 const start = async () => {
   registerGlobal(server);
   registerFastifySwagger(server);
-  await server.register(endpointRouter);
   await connectToDB();
+  await server.register(endpointRouter);
   await server.listen({ port: PORT, host: '0.0.0.0' });
 };
 
