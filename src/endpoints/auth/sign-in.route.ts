@@ -2,12 +2,12 @@ import { jwtConfig } from '../../shared/configs';
 import { UserEntity } from '../../shared/database';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { ISignUpOrInBodyInput, signUpOrInSchema } from './schemas';
-import { RouteCustomOptions } from './types';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signInRoute: RouteCustomOptions<ISignUpOrInBodyInput> = {
+export const signInRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
   url: '/sign-in',
   method: 'POST',
   schema: signUpOrInSchema,

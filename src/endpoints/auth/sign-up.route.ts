@@ -9,12 +9,12 @@ import {
   JWTService,
   VerificationCodeService,
 } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { ISignUpOrInBodyInput, signUpOrInSchema } from './schemas';
-import { RouteCustomOptions } from './types';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signUpRoute: RouteCustomOptions<ISignUpOrInBodyInput> = {
+export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
   url: '/sign-up',
   method: 'POST',
   schema: signUpOrInSchema,

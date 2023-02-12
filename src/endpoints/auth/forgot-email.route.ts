@@ -3,11 +3,11 @@ import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { EmailEnum } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { EmailService, VerificationCodeService } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { statusOutputSuccess } from '../../shared/view-models';
 import { ForgotEmailSchema, IForgotEmailBodySchema } from './schemas';
-import { RouteCustomOptions } from './types';
 
-export const forgotEmailRoute: RouteCustomOptions<IForgotEmailBodySchema> = {
+export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema }> = {
   url: '/email/forgot',
   method: 'POST',
   schema: ForgotEmailSchema,

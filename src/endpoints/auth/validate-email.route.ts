@@ -2,11 +2,11 @@ import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { UserStateEnum } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { LocalStorage, VerificationCodeService } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { statusOutputSuccess } from '../../shared/view-models';
 import { IValidateEmailBodySchema, validateEmailSchema } from './schemas/validate-email.schema';
-import { RouteCustomOptions } from './types';
 
-export const validateEmailRoute: RouteCustomOptions<IValidateEmailBodySchema> = {
+export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodySchema }> = {
   url: '/email/validate',
   method: 'POST',
   schema: validateEmailSchema,

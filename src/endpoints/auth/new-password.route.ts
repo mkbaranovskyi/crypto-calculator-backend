@@ -3,12 +3,12 @@ import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodesEntity } from '../../shared/database';
 import { UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService, VerificationCodeService } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { INewPasswordBodyInput, newPasswordSchema } from './schemas';
-import { RouteCustomOptions } from './types';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const newPasswordRoute: RouteCustomOptions<INewPasswordBodyInput> = {
+export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput }> = {
   url: '/email/new-password',
   method: 'POST',
   schema: newPasswordSchema,
