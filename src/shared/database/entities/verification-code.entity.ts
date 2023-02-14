@@ -1,4 +1,4 @@
-import { Column, Entity, UpdateDateColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { Base } from './base.entity';
 
 @Entity('verificationCodes')

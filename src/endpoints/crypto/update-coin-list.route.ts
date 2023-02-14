@@ -20,7 +20,13 @@ export const updateCoinListRoute: RouteCustomOptions<{ Querystring: IUpdateCoinL
     const data: ICoinsMarketsResponse[] = await res.json();
 
     for (const { id, name, symbol, image, atl_date } of data) {
-      await CoinListEntity.create({ coinId: id, name, symbol, image, atl_date }).save();
+      await CoinListEntity.create({
+        coinId: id,
+        name,
+        symbol,
+        image,
+        atl_date: new Date(atl_date),
+      }).save();
     }
 
     return statusOutputSuccess;

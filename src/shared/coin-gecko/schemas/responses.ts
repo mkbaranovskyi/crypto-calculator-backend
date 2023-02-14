@@ -1,17 +1,17 @@
 export interface ICoinsMarketsResponse {
   ath: number;
   ath_change_percentage: number;
-  ath_date: Date;
+  ath_date: string;
   atl: number;
   atl_change_percentage: number;
-  atl_date: Date;
+  atl_date: string;
   circulating_supply: number;
   current_price: number;
   fully_diluted_valuation: number;
   high_24h: number;
   id: string;
   image: string;
-  last_updated: Date;
+  last_updated: string;
   low_24h: number;
   market_cap: number;
   market_cap_change_24h: number;
