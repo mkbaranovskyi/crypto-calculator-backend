@@ -27,6 +27,6 @@ export class CryptoDataEntity extends Base {
   @Column()
   totalGrowth!: number;
 
-  @OneToOne(() => UserEntity, (user) => user.cryptoData)
-  user!: UserEntity;
+  @OneToOne(() => UserEntity, (user) => user.cryptoData, { lazy: true })
+  user!: Promise<UserEntity | null>;
 }

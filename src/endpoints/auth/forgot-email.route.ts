@@ -35,7 +35,7 @@ export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema
       await VerificationCodeEntity.delete({ user: { _id: user._id } });
     }
 
-    await VerificationCodeEntity.create({ user: { _id: user._id }, code, expiresAt }).save();
+    await VerificationCodeEntity.create({ code, expiresAt }).save();
     await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
     return statusOutputSuccess;

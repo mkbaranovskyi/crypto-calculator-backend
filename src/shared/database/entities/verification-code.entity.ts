@@ -10,6 +10,6 @@ export class VerificationCodeEntity extends Base {
   @Column()
   expiresAt!: Date;
 
-  @OneToOne(() => UserEntity, (user) => user.verificationCode)
-  user!: UserEntity;
+  @OneToOne(() => UserEntity, (user) => user.verificationCode, { lazy: true })
+  user!: Promise<UserEntity | null>;
 }
