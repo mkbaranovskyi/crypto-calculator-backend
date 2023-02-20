@@ -5,9 +5,6 @@ import { UserEntity } from './user.entity';
 @Entity('verificationCodes')
 export class VerificationCodeEntity extends Base {
   @Column()
-  userId!: string;
-
-  @Column()
   code!: string;
 
   @Column()

@@ -47,7 +47,7 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
       }
     }
 
-    const cryptoData = await CryptoDataEntity.findOneBy({ userId: String(user._id) });
+    const cryptoData = await CryptoDataEntity.findOne({ relations: { user: true } });
 
     if (cryptoData) {
       cryptoData.startDate = new Date(startDate);
@@ -57,10 +57,10 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
       await cryptoData.save();
     } else {
       await CryptoDataEntity.create({
-        userId: String(user._id),
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         monthlyInvestment,
+        user,
       }).save();
     }
 

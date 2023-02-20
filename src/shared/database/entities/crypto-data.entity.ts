@@ -5,9 +5,6 @@ import { UserEntity } from './user.entity';
 @Entity('cryptoData')
 export class CryptoDataEntity extends Base {
   @Column()
-  userId!: string;
-
-  @Column()
   startDate!: Date;
 
   @Column()

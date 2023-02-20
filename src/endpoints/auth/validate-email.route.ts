@@ -14,7 +14,7 @@ export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodySc
     const { code: receivedCode } = req.body;
     const user = LocalStorage.getUser();
 
-    const savedCode = await VerificationCodeEntity.findOneBy({ userId: String(user._id) });
+    const savedCode = await VerificationCodeEntity.findOne({ relations: { user: true } });
 
     try {
       VerificationCodeService.validateCode(savedCode, receivedCode);
