@@ -24,7 +24,7 @@ export const CoinListSchema = {
   response: {
     200: {
       type: 'array',
-      properties: {
+      items: {
         coinId: { type: 'string' },
         image: { type: 'string' },
         symbol: { type: 'string' },

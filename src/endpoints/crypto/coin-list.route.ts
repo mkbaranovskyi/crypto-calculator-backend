@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { MIN_COIN_DATE } from '../../shared/consts';
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
 import { LocalStorage } from '../../shared/services';
@@ -18,11 +19,11 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
   handler: async (req, reply) => {
     const { startDate, endDate, monthlyInvestment } = req.body;
 
-    const minDate = DateTime.fromISO('2013-01-01').toMillis();
+    const minDate = DateTime.fromISO(MIN_COIN_DATE).toMillis();
     const currentDate = DateTime.now().toMillis();
 
     if (startDate < minDate) {
-      throw new BadRequestException('Start date cannot be less than 2013-01-01.');
+      throw new BadRequestException(`Start date cannot be less than ${MIN_COIN_DATE}.`);
     }
 
     if (endDate > currentDate) {
@@ -46,14 +47,14 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
       }
     }
 
-    const isExistsCryptoData = await CryptoDataEntity.findOneBy({ userId: String(user._id) });
+    const cryptoData = await CryptoDataEntity.findOneBy({ userId: String(user._id) });
 
-    if (isExistsCryptoData) {
-      await CryptoDataEntity.update(user._id, {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-        monthlyInvestment,
-      });
+    if (cryptoData) {
+      cryptoData.startDate = new Date(startDate);
+      cryptoData.endDate = new Date(endDate);
+      cryptoData.monthlyInvestment = monthlyInvestment;
+
+      await cryptoData.save();
     } else {
       await CryptoDataEntity.create({
         userId: String(user._id),
