@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Base } from './base.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('cryptoData')
 export class CryptoDataEntity extends Base {
@@ -28,4 +29,7 @@ export class CryptoDataEntity extends Base {
 
   @Column()
   totalGrowth!: number;
+
+  @OneToOne(() => UserEntity, (user) => user.cryptoData)
+  user!: UserEntity;
 }

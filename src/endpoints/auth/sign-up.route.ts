@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
-import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { EmailEnum } from '../../shared/enums';
 import { BadRequestException } from '../../shared/errors';
 import {
@@ -46,7 +46,7 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
 
     const { code, expiresAt } = VerificationCodeService.createCode();
 
-    await VerificationCodesEntity.create({
+    await VerificationCodeEntity.create({
       userId: String(dataUser._id),
       code: '123456',
       expiresAt,

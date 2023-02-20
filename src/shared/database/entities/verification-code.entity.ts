@@ -1,8 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 import { Base } from './base.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('verificationCodes')
-export class VerificationCodesEntity extends Base {
+export class VerificationCodeEntity extends Base {
   @Column()
   userId!: string;
 
@@ -11,4 +12,7 @@ export class VerificationCodesEntity extends Base {
 
   @Column()
   expiresAt!: Date;
+
+  @OneToOne(() => UserEntity, (user) => user.verificationCode)
+  user!: UserEntity;
 }

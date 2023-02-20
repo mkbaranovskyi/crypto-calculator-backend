@@ -1,4 +1,4 @@
-import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { UserStateEnum } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { LocalStorage, VerificationCodeService } from '../../shared/services';
@@ -14,7 +14,7 @@ export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodySc
     const { code: receivedCode } = req.body;
     const user = LocalStorage.getUser();
 
-    const savedCode = await VerificationCodesEntity.findOneBy({ userId: String(user._id) });
+    const savedCode = await VerificationCodeEntity.findOneBy({ userId: String(user._id) });
 
     try {
       VerificationCodeService.validateCode(savedCode, receivedCode);

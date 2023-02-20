@@ -1,4 +1,4 @@
-import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { UnauthorizedException } from '../../shared/errors';
 import { VerificationCodeService } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
@@ -18,7 +18,7 @@ export const codeEmailRoute: RouteCustomOptions<{ Body: ICodeEmailBodyInput }> =
       throw new UnauthorizedException('Email does not exist.');
     }
 
-    const savedCode = await VerificationCodesEntity.findOneBy({ userId: String(user._id) });
+    const savedCode = await VerificationCodeEntity.findOneBy({ userId: String(user._id) });
 
     try {
       VerificationCodeService.validateCode(savedCode, receivedCode);
