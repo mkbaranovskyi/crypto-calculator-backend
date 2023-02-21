@@ -47,6 +47,7 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
     const { code, expiresAt } = VerificationCodeService.createCode();
 
     await VerificationCodeEntity.create({
+      userId: dataUser._id,
       code: '123456',
       expiresAt,
     }).save();

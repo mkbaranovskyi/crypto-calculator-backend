@@ -18,7 +18,7 @@ export const codeEmailRoute: RouteCustomOptions<{ Body: ICodeEmailBodyInput }> =
       throw new UnauthorizedException('Email does not exist.');
     }
 
-    const savedCode = await VerificationCodeEntity.findOne({ relations: { user: true } });
+    const savedCode = await VerificationCodeEntity.findOneBy({ userId: user._id });
 
     try {
       VerificationCodeService.validateCode(savedCode, receivedCode);

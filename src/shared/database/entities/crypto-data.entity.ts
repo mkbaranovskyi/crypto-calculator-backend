@@ -1,9 +1,11 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 import { Base } from './base.entity';
-import { UserEntity } from './user.entity';
 
 @Entity('cryptoData')
 export class CryptoDataEntity extends Base {
+  @ObjectIdColumn()
+  userId!: ObjectID;
+
   @Column()
   startDate!: Date;
 
@@ -26,7 +28,4 @@ export class CryptoDataEntity extends Base {
 
   @Column()
   totalGrowth!: number;
-
-  @OneToOne(() => UserEntity, (user) => user.cryptoData, { lazy: true })
-  user!: Promise<UserEntity | null>;
 }

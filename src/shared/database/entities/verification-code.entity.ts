@@ -1,15 +1,14 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 import { Base } from './base.entity';
-import { UserEntity } from './user.entity';
 
 @Entity('verificationCodes')
 export class VerificationCodeEntity extends Base {
+  @ObjectIdColumn()
+  userId!: ObjectID;
+
   @Column()
   code!: string;
 
   @Column()
   expiresAt!: Date;
-
-  @OneToOne(() => UserEntity, (user) => user.verificationCode, { lazy: true })
-  user!: Promise<UserEntity | null>;
 }

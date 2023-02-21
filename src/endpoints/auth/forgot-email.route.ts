@@ -22,7 +22,7 @@ export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema
 
     const { code, expiresAt } = VerificationCodeService.createCode();
 
-    const savedCode = await VerificationCodeEntity.findOne({ relations: { user: true } });
+    const savedCode = await VerificationCodeEntity.findOneBy({ userId: user._id });
 
     if (savedCode) {
       const currentDate = DateTime.utc();
@@ -32,10 +32,10 @@ export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema
         throw new BadRequestException('Wait before you can request another code.');
       }
 
-      await VerificationCodeEntity.delete({ user: { _id: user._id } });
+      await VerificationCodeEntity.delete({ userId: user._id });
     }
 
-    await VerificationCodeEntity.create({ code, expiresAt }).save();
+    await VerificationCodeEntity.create({ userId: user._id, code, expiresAt }).save();
     await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
     return statusOutputSuccess;

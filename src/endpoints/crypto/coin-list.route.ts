@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { MIN_COIN_DATE } from '../../shared/consts';
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
+import { LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
 import { CoinListSchema, ICoinListBodyInput } from './schemas';
 
@@ -33,6 +34,7 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
       throw new BadRequestException('Monthly investment cannot be less than 20$.');
     }
 
+    const user = LocalStorage.getUser();
     const coins = await CoinListEntity.find();
     const avialableCoins: IAvialableCoins[] = [];
 
@@ -44,8 +46,12 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
       }
     }
 
-    const cryptoData =
-      (await CryptoDataEntity.findOne({ relations: { user: true } })) ?? new CryptoDataEntity();
+    let cryptoData = await CryptoDataEntity.findOneBy({ userId: user._id });
+
+    if (!cryptoData) {
+      cryptoData = new CryptoDataEntity();
+      cryptoData.userId = user._id;
+    }
 
     cryptoData.startDate = new Date(startDate);
     cryptoData.endDate = new Date(endDate);
