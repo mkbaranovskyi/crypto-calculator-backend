@@ -1,10 +1,10 @@
-import { Column, Entity, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, ObjectID, ObjectIdColumn } from 'typeorm';
 import { Base } from './base.entity';
 
 @Entity('verificationCodes')
-export class VerificationCodesEntity extends Base {
-  @Column()
-  userId!: string;
+export class VerificationCodeEntity extends Base {
+  @ObjectIdColumn()
+  userId!: ObjectID;
 
   @Column()
   code!: string;

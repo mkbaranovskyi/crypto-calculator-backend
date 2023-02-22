@@ -1,6 +1,6 @@
 import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
-import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { EmailEnum } from '../../shared/enums';
 import { BadRequestException } from '../../shared/errors';
 import {
@@ -9,12 +9,12 @@ import {
   JWTService,
   VerificationCodeService,
 } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { ISignUpOrInBodyInput, signUpOrInSchema } from './schemas';
-import { RouteCustomOptions } from './types';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signUpRoute: RouteCustomOptions<ISignUpOrInBodyInput> = {
+export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
   url: '/sign-up',
   method: 'POST',
   schema: signUpOrInSchema,
@@ -46,8 +46,8 @@ export const signUpRoute: RouteCustomOptions<ISignUpOrInBodyInput> = {
 
     const { code, expiresAt } = VerificationCodeService.createCode();
 
-    await VerificationCodesEntity.create({
-      userId: String(dataUser._id),
+    await VerificationCodeEntity.create({
+      userId: dataUser._id,
       code: '123456',
       expiresAt,
     }).save();

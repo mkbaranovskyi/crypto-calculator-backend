@@ -1,6 +1,6 @@
 import { randomInt } from 'crypto';
 import { DateTime } from 'luxon';
-import { VerificationCodesEntity } from '../../database';
+import { VerificationCodeEntity } from '../../database';
 import { IGenerageCodeOutput } from './outputs';
 
 export const createCode = (): IGenerageCodeOutput => {
@@ -13,7 +13,7 @@ export const createCode = (): IGenerageCodeOutput => {
 };
 
 export const validateCode = (
-  savedCode: VerificationCodesEntity | null,
+  savedCode: VerificationCodeEntity | null,
   receivedCode: string
 ): void => {
   if (!savedCode || savedCode.code !== receivedCode) {

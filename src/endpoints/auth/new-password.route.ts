@@ -1,14 +1,14 @@
 import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
-import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService, VerificationCodeService } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { INewPasswordBodyInput, newPasswordSchema } from './schemas';
-import { RouteCustomOptions } from './types';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const newPasswordRoute: RouteCustomOptions<INewPasswordBodyInput> = {
+export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput }> = {
   url: '/email/new-password',
   method: 'POST',
   schema: newPasswordSchema,
@@ -21,8 +21,8 @@ export const newPasswordRoute: RouteCustomOptions<INewPasswordBodyInput> = {
       throw new UnauthorizedException('Email does not exist.');
     }
 
-    const savedCode = await VerificationCodesEntity.findOneBy({
-      userId: String(user._id),
+    const savedCode = await VerificationCodeEntity.findOneBy({
+      userId: user._id,
     });
 
     try {
@@ -41,7 +41,7 @@ export const newPasswordRoute: RouteCustomOptions<INewPasswordBodyInput> = {
       salt,
     });
 
-    await VerificationCodesEntity.delete({ userId: String(user._id) });
+    await VerificationCodeEntity.delete({ userId: user._id });
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

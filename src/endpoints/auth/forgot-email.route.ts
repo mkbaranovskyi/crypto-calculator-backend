@@ -1,13 +1,13 @@
 import { DateTime } from 'luxon';
-import { UserEntity, VerificationCodesEntity } from '../../shared/database';
+import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { EmailEnum } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { EmailService, VerificationCodeService } from '../../shared/services';
+import { RouteCustomOptions } from '../../shared/types';
 import { statusOutputSuccess } from '../../shared/view-models';
 import { ForgotEmailSchema, IForgotEmailBodySchema } from './schemas';
-import { RouteCustomOptions } from './types';
 
-export const forgotEmailRoute: RouteCustomOptions<IForgotEmailBodySchema> = {
+export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema }> = {
   url: '/email/forgot',
   method: 'POST',
   schema: ForgotEmailSchema,
@@ -22,7 +22,7 @@ export const forgotEmailRoute: RouteCustomOptions<IForgotEmailBodySchema> = {
 
     const { code, expiresAt } = VerificationCodeService.createCode();
 
-    const savedCode = await VerificationCodesEntity.findOneBy({ userId: String(user._id) });
+    const savedCode = await VerificationCodeEntity.findOneBy({ userId: user._id });
 
     if (savedCode) {
       const currentDate = DateTime.utc();
@@ -32,10 +32,10 @@ export const forgotEmailRoute: RouteCustomOptions<IForgotEmailBodySchema> = {
         throw new BadRequestException('Wait before you can request another code.');
       }
 
-      await VerificationCodesEntity.delete({ userId: String(user._id) });
+      await VerificationCodeEntity.delete({ userId: user._id });
     }
 
-    await VerificationCodesEntity.create({ userId: String(user._id), code, expiresAt }).save();
+    await VerificationCodeEntity.create({ userId: user._id, code, expiresAt }).save();
     await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
     return statusOutputSuccess;
