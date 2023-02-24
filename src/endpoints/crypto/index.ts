@@ -2,6 +2,7 @@ import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { jwtConfig } from '../../shared/configs';
 import { checkAccessToken } from '../../shared/hooks';
 import { coinListRoute } from './coin-list.route';
+import { coinSearchRoute } from './coin-search.route';
 import { updateCoinListRoute } from './update-coin-list.route';
 
 const { secret } = jwtConfig;
@@ -13,6 +14,7 @@ export const cryptoRouter: FastifyPluginAsync<FastifyPluginOptions> = async (ser
     });
 
     server.route(coinListRoute);
+    server.route(coinSearchRoute);
   });
 
   server.route(updateCoinListRoute);

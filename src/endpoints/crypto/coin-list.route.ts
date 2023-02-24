@@ -1,16 +1,11 @@
 import { DateTime } from 'luxon';
 import { MIN_COIN_DATE } from '../../shared/consts';
-import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
+import { CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
 import { LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
+import { statusOutputSuccess } from '../../shared/view-models';
 import { CoinListSchema, ICoinListBodyInput } from './schemas';
-
-interface IAvialableCoins {
-  coinId: string;
-  image: string;
-  symbol: string;
-}
 
 export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
   url: '/coin-list',
@@ -30,27 +25,21 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
       throw new BadRequestException('Start date cannot be more than today.');
     }
 
+    if (startDate > endDate) {
+      throw new BadRequestException('Start date cannot be less than end date.');
+    }
+
     if (monthlyInvestment < 20) {
       throw new BadRequestException('Monthly investment cannot be less than 20$.');
     }
 
     const user = LocalStorage.getUser();
-    const coins = await CoinListEntity.find();
-    const avialableCoins: IAvialableCoins[] = [];
 
-    for (const { coinId, atl_date, image, symbol } of coins) {
-      const atlDate = DateTime.fromJSDate(atl_date).toMillis();
-
-      if (atlDate <= endDate) {
-        avialableCoins.push({ coinId, image, symbol });
-      }
-    }
-
-    let cryptoData = await CryptoDataEntity.findOneBy({ userId: user._id });
+    let cryptoData = await CryptoDataEntity.findOneBy({ userId: String(user._id) });
 
     if (!cryptoData) {
       cryptoData = new CryptoDataEntity();
-      cryptoData.userId = user._id;
+      cryptoData.userId = String(user._id);
     }
 
     cryptoData.startDate = new Date(startDate);
@@ -59,6 +48,6 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
 
     await cryptoData.save();
 
-    return avialableCoins;
+    return statusOutputSuccess;
   },
 };

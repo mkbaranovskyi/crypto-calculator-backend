@@ -3,8 +3,8 @@ import { Base } from './base.entity';
 
 @Entity('cryptoData')
 export class CryptoDataEntity extends Base {
-  @ObjectIdColumn()
-  userId!: ObjectID;
+  @Column()
+  userId!: string;
 
   @Column()
   startDate!: Date;

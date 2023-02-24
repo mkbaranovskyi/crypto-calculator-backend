@@ -1,3 +1,5 @@
+import { statusOutputSchema } from '../../../shared/models';
+
 export interface ICoinListBodyInput {
   startDate: number;
   endDate: number;
@@ -22,13 +24,6 @@ export const CoinListSchema = {
     required: ['authorization'],
   },
   response: {
-    200: {
-      type: 'array',
-      items: {
-        coinId: { type: 'string' },
-        image: { type: 'string' },
-        symbol: { type: 'string' },
-      },
-    },
+    200: statusOutputSchema,
   },
 };
