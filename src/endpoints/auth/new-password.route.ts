@@ -21,9 +21,7 @@ export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput 
       throw new UnauthorizedException('Email does not exist.');
     }
 
-    const savedCode = await VerificationCodeEntity.findOneBy({
-      userId: user._id,
-    });
+    const savedCode = await VerificationCodeEntity.findOneBy({ userId: String(user._id) });
 
     try {
       VerificationCodeService.validateCode(savedCode, receivedCode);
@@ -41,7 +39,7 @@ export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput 
       salt,
     });
 
-    await VerificationCodeEntity.delete({ userId: user._id });
+    await VerificationCodeEntity.delete({ userId: String(user._id) });
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

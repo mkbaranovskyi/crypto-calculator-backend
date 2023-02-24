@@ -3,8 +3,8 @@ import { Base } from './base.entity';
 
 @Entity('verificationCodes')
 export class VerificationCodeEntity extends Base {
-  @ObjectIdColumn()
-  userId!: ObjectID;
+  @Column()
+  userId!: string;
 
   @Column()
   code!: string;
