@@ -1,3 +1,5 @@
+import { authorizationHeaderSchema } from '../../../shared/models';
+
 export interface ICoinSearchBodyInput {
   searchText: string;
   limit: number;
@@ -12,13 +14,7 @@ export const CoinSearchSchema = {
     },
     required: ['searchText', 'limit'],
   },
-  headers: {
-    type: 'object',
-    properties: {
-      authorization: { type: 'string' },
-    },
-    required: ['authorization'],
-  },
+  headers: authorizationHeaderSchema,
   response: {
     200: {
       type: 'array',

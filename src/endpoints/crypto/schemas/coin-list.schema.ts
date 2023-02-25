@@ -1,4 +1,4 @@
-import { statusOutputSchema } from '../../../shared/models';
+import { authorizationHeaderSchema, statusOutputSchema } from '../../../shared/models';
 
 export interface ICoinListBodyInput {
   startDate: number;
@@ -16,13 +16,7 @@ export const CoinListSchema = {
     },
     required: ['startDate', 'endDate', 'monthlyInvestment'],
   },
-  headers: {
-    type: 'object',
-    properties: {
-      authorization: { type: 'string' },
-    },
-    required: ['authorization'],
-  },
+  headers: authorizationHeaderSchema,
   response: {
     200: statusOutputSchema,
   },

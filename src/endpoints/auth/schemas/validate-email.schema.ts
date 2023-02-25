@@ -1,4 +1,4 @@
-import { statusOutputSchema } from '../../../shared/models';
+import { authorizationHeaderSchema, statusOutputSchema } from '../../../shared/models';
 
 export interface IValidateEmailBodySchema {
   code: string;
@@ -12,13 +12,7 @@ export const validateEmailSchema = {
     },
     required: ['code'],
   },
-  headers: {
-    type: 'object',
-    properties: {
-      authorization: { type: 'string' },
-    },
-    required: ['authorization'],
-  },
+  headers: authorizationHeaderSchema,
   response: {
     200: statusOutputSchema,
   },

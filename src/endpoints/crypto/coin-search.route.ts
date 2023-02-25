@@ -29,6 +29,6 @@ export const coinSearchRoute: RouteCustomOptions<{ Body: ICoinSearchBodyInput }>
       take: limit,
     });
 
-    return avialableCoins.map(({ _id, ...others }: AvialableCoinsType) => ({ ...others }));
+    return avialableCoins.map(({ _id, ...rest }: AvialableCoinsType) => ({ ...rest }));
   },
 };
