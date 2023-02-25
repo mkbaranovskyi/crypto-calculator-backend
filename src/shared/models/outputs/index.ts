@@ -1,1 +1,1 @@
-export * from './status.output-schema';
+export * from './status-output.schema';
