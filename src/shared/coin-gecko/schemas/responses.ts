@@ -26,3 +26,9 @@ export interface ICoinsMarketsResponse {
   total_supply: number;
   total_volume: number;
 }
+
+export interface ICoinsMarketChartRangeResponse {
+  prices: [number, number][];
+  market_caps: [number, number][];
+  total_volumes: [number, number][];
+}

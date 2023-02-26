@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { MAX_NUMBER_OF_COINS_TO_INVEST } from '../../shared/consts';
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException, InternalServerError } from '../../shared/errors';
-import { LocalStorage } from '../../shared/services';
+import { CryptoService, LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
 import { CalculateProfitBodyInput } from './schemas';
 
@@ -11,6 +11,10 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
   method: 'POST',
   handler: async (req, reply) => {
     const selectedCoins = req.body;
+
+    if (selectedCoins.length === 0) {
+      throw new BadRequestException('Must have at least 1 coin.');
+    }
 
     if (selectedCoins.length > MAX_NUMBER_OF_COINS_TO_INVEST) {
       const errorMessage = `The maximum number of coins to invest is more than ${MAX_NUMBER_OF_COINS_TO_INVEST}.`;
@@ -62,6 +66,12 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
     const totalMonths = diffMonths + counfOfFirstAndLastMonths;
     const totalInvested = totalMonths * monthlyInvestment;
 
-    return { totalInvested };
+    const test1 = await CryptoService.getCoinPrices({
+      coinId: 'bitcoin',
+      startDate: start,
+      endDate: end,
+    });
+
+    return { totalInvested, test1 };
   },
 };
