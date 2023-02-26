@@ -54,6 +54,17 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
       throw new BadRequestException('Non-existent coins indicated.');
     }
 
+    const minDistributionOfShare = Number((100 / coinsShared.length).toFixed(1));
+    const totalShare = coinsShared.reduce((prev, current) => prev + current, 0);
+    const isIncorrectDistributionOfShares = coinsShared.some(
+      (share) => share < minDistributionOfShare
+    );
+
+    if (totalShare < 99.8 || totalShare > 100.2 || isIncorrectDistributionOfShares) {
+      console.log(totalShare);
+      throw new BadRequestException('Incorrect distribution of share.');
+    }
+
     const { startDate, endDate, monthlyInvestment } = cryptoData;
 
     const start = DateTime.fromJSDate(startDate);
@@ -63,8 +74,8 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
     const diffMonths = Math.abs(months);
 
     const counfOfFirstAndLastMonths = 2;
-    const totalMonths = diffMonths + counfOfFirstAndLastMonths;
-    const totalInvested = totalMonths * monthlyInvestment;
+    const investmentPeriod = diffMonths + counfOfFirstAndLastMonths;
+    const totalInvested = investmentPeriod * monthlyInvestment;
 
     const test1 = await CryptoService.getCoinPrices({
       coinId: 'bitcoin',
@@ -72,6 +83,6 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
       endDate: end,
     });
 
-    return { totalInvested, test1 };
+    return { totalInvested, investmentPeriod, test1 };
   },
 };

@@ -21,8 +21,6 @@ export const getCoinPrices = async ({ coinId, startDate, endDate }: IGetCoinPric
 
   const data: ICoinsMarketChartRangeResponse = await res.json();
 
-  console.log(data);
-
   const prices: number[] = [];
 
   for (const [timestamp, price] of data.prices) {
