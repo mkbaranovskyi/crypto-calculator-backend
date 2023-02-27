@@ -1,3 +1,3 @@
-import { ICoinShareData } from '../../../shared/coin-gecko';
+import { ICoinShareData } from '../../../shared/types';
 
 export type CalculateProfitBodyInput = ICoinShareData[];

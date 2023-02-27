@@ -1,5 +1,7 @@
-import { ICoinsPrices, IProfitOfCoinData } from '../../../coin-gecko';
+import { ICoinPrices, ICoinProfitResult, ICoinMainData } from '../../../types';
 
-export type GetCoinsPricesOutput = ICoinsPrices;
+export type GetCoinsPricesOutput = ICoinPrices;
 
-export type GetProfitOfCoinsOutput = IProfitOfCoinData[];
+export type GetMainCoinsDataOutput = ICoinMainData[];
+
+export type GetCoinsProfitOutput = ICoinProfitResult[];

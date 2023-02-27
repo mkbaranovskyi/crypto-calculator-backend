@@ -1,16 +1,3 @@
-import { ObjectID } from 'typeorm';
+import { ICoinInfo } from '../../../shared/types';
 
-interface IId {
-  _id: ObjectID;
-}
-
-interface IAvialableCoins {
-  name: string;
-  coinId: string;
-  image: string;
-  symbol: string;
-}
-
-export type AvialableCoinsType = IAvialableCoins & IId;
-
-export const selectKeys: Array<keyof IAvialableCoins> = ['coinId', 'image', 'name', 'symbol'];
+export const infoSelectedKeys: Array<keyof ICoinInfo> = ['coinId', 'image', 'name', 'symbol'];

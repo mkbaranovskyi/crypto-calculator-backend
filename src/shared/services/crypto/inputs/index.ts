@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { ICoinsPrices, ICoinShareData } from '../../../coin-gecko';
+import { ICoinInfo, ICoinMainData, ICoinPrices, ICoinShareData } from '../../../types';
 
 export interface IGetCoinPricesInput {
   startDate: DateTime;
@@ -7,8 +7,13 @@ export interface IGetCoinPricesInput {
   coinId: string;
 }
 
-export interface IGetProfitOfCoinsInput {
-  monthlyInvestment: number;
+export interface IGetMainCoinsDataInput {
+  coinsPrices: ICoinPrices[];
   coinsShares: ICoinShareData[];
-  coinsPrices: ICoinsPrices;
+  mainCoinsInfo: ICoinInfo[];
+}
+
+export interface IGetCoinsProfitInput {
+  monthlyInvestment: number;
+  mainCoinsData: ICoinMainData[];
 }

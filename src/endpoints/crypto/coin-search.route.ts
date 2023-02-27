@@ -1,9 +1,9 @@
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
-import { LocalStorage } from '../../shared/services';
+import { CryptoService, LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
 import { CoinSearchSchema, ICoinSearchBodyInput } from './schemas';
-import { AvialableCoinsType, selectKeys } from './types';
+import { infoSelectedKeys } from './types';
 
 export const coinSearchRoute: RouteCustomOptions<{ Body: ICoinSearchBodyInput }> = {
   url: '/coin-search',
@@ -25,10 +25,10 @@ export const coinSearchRoute: RouteCustomOptions<{ Body: ICoinSearchBodyInput }>
         name: { $regex: new RegExp(searchText, 'i') } as any,
         atl_date: { $lte: new Date(cryptoData.startDate) } as any,
       },
-      select: selectKeys,
+      select: infoSelectedKeys,
       take: limit,
     });
 
-    return avialableCoins.map(({ _id, ...rest }: AvialableCoinsType) => ({ ...rest }));
+    return CryptoService.getMainCoinsInfo(avialableCoins);
   },
 };

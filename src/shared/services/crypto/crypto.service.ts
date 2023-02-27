@@ -3,8 +3,12 @@ import fetch from 'node-fetch';
 import { ICoinsMarketChartRangeResponse } from '../../coin-gecko';
 import { coinGeckoConfig } from '../../configs';
 import { INVEST_DAY_OF_MONTH } from '../../consts';
-import { IGetCoinPricesInput, IGetProfitOfCoinsInput } from './inputs';
-import { GetCoinsPricesOutput, GetProfitOfCoinsOutput } from './outputs';
+import { AvialableCoinsType } from '../../types';
+import { IGetCoinPricesInput, IGetMainCoinsDataInput, IGetCoinsProfitInput } from './inputs';
+import { GetCoinsPricesOutput, GetMainCoinsDataOutput, GetCoinsProfitOutput } from './outputs';
+
+export const getMainCoinsInfo = (coinData: AvialableCoinsType[]) =>
+  coinData.map(({ _id, ...rest }) => ({ ...rest }));
 
 const isSameMonthAndYear = (priceDate: DateTime, usersDate: DateTime) =>
   priceDate.month === usersDate.month && priceDate.year === usersDate.year;
@@ -46,6 +50,20 @@ export const getCoinPrices = async ({
   return { [coinId]: prices };
 };
 
+export const getMainCoinsData = ({
+  coinsPrices,
+  coinsShares,
+  mainCoinsInfo,
+}: IGetMainCoinsDataInput): GetMainCoinsDataOutput =>
+  coinsPrices.map((coinPrices) => {
+    const coinId = Object.keys(coinPrices).at(0)!;
+
+    const mainCoinData = mainCoinsInfo.find(({ coinId: mainCoinId }) => mainCoinId === coinId)!;
+    const coinShareData = coinsShares.find(({ coinId: coinShareId }) => coinShareId === coinId)!;
+
+    return { ...mainCoinData, prices: coinPrices[coinId], share: coinShareData.share };
+  });
+
 const getInvestAndPurchased = (inputInvest: number, prices: number[]) => {
   const result = { totalInvested: 0, purchasedCoins: 0 };
 
@@ -57,37 +75,32 @@ const getInvestAndPurchased = (inputInvest: number, prices: number[]) => {
   return result;
 };
 
-export const getProfitOfCoins = ({
-  coinsPrices,
-  coinsShares,
+export const getCoinsProfit = ({
   monthlyInvestment,
-}: IGetProfitOfCoinsInput): GetProfitOfCoinsOutput => {
-  const coinsData: GetProfitOfCoinsOutput = [];
-
-  for (const [coinId, prices] of Object.entries(coinsPrices)) {
-    const coinShare = coinsShares.find((coin) => coin.coinId === coinId);
-    const share = coinShare?.share || 0;
+  mainCoinsData,
+}: IGetCoinsProfitInput): GetCoinsProfitOutput =>
+  mainCoinsData.map(({ coinId, image, name, prices, share, symbol }) => {
     const monthlyInvestShare = (monthlyInvestment / 100) * share;
 
     const { purchasedCoins, totalInvested } = getInvestAndPurchased(monthlyInvestShare, prices);
 
     const lastPrice = prices.at(-1) || 0;
-    const finalCapital = purchasedCoins * lastPrice;
+    const finalCapital = Number((purchasedCoins * lastPrice).toFixed(2));
 
     const percentOfInvestFromFinal = (totalInvested * 100) / finalCapital;
     const increaseIn = finalCapital / totalInvested;
     const growth = Number(((100 - percentOfInvestFromFinal) * increaseIn).toFixed(2));
 
-    coinsData.push({
+    return {
       coinId,
-      lastPrice,
+      image,
+      name,
+      symbol,
+      share,
       totalInvested,
       finalCapital,
-      growth,
+      lastPrice,
       purchasedCoins,
-      share,
-    });
-  }
-
-  return coinsData;
-};
+      growth,
+    };
+  });

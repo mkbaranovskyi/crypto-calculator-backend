@@ -1,11 +1,12 @@
 import { DateTime } from 'luxon';
-import { ICoinsPrices } from '../../shared/coin-gecko';
+import { ICoinMainData, ICoinPrices } from '../../shared/types';
 import { MAX_NUMBER_OF_COINS_TO_INVEST } from '../../shared/consts';
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException, InternalServerError } from '../../shared/errors';
 import { CryptoService, LocalStorage } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { AvialableCoinsType, RouteCustomOptions } from '../../shared/types';
 import { CalculateProfitBodyInput } from './schemas';
+import { infoSelectedKeys } from './types';
 
 export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBodyInput }> = {
   url: '/calculate-profit',
@@ -24,9 +25,9 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
     }
 
     const coinsId = selectedCoins.map(({ coinId }) => coinId);
-    const coinsShared = selectedCoins.map(({ share }) => share);
+    const coinsShares = selectedCoins.map(({ share }) => share);
 
-    if (coinsId.length < selectedCoins.length || coinsShared.length < selectedCoins.length) {
+    if (coinsId.length < selectedCoins.length || coinsShares.length < selectedCoins.length) {
       throw new BadRequestException('Invalid data format passed.');
     }
 
@@ -39,7 +40,7 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
 
     const avialableCoins = await CoinListEntity.find({
       where: { atl_date: { $lte: new Date(cryptoData.startDate) } as any },
-      select: ['coinId'],
+      select: infoSelectedKeys,
     });
 
     const avialableCoinsId = avialableCoins.map(({ coinId }) => coinId);
@@ -55,9 +56,9 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
       throw new BadRequestException('Non-existent coins indicated.');
     }
 
-    const minDistributionOfShare = Number((100 / coinsShared.length).toFixed(1));
-    const totalShare = coinsShared.reduce((prev, current) => prev + current, 0);
-    const isIncorrectDistributionOfShares = coinsShared.some(
+    const minDistributionOfShare = Number((100 / coinsShares.length).toFixed(1));
+    const totalShare = coinsShares.reduce((prev, current) => prev + current, 0);
+    const isIncorrectDistributionOfShares = coinsShares.some(
       (share) => share < minDistributionOfShare
     );
 
@@ -83,20 +84,19 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
 
     const coinsPrices = await Promise.all(coinsPricesPromises);
 
-    const formatCoinsPrices: ICoinsPrices = {};
+    const mainCoinsInfo = CryptoService.getMainCoinsInfo(avialableCoins);
 
-    for (const coinPrice of coinsPrices) {
-      const coindId = Object.keys(coinPrice).at(-1);
-
-      formatCoinsPrices[coindId!] = coinPrice[coindId!];
-    }
-
-    const result = CryptoService.getProfitOfCoins({
-      monthlyInvestment: cryptoData.monthlyInvestment,
-      coinsPrices: formatCoinsPrices,
+    const mainCoinsData = CryptoService.getMainCoinsData({
+      coinsPrices,
       coinsShares: selectedCoins,
+      mainCoinsInfo: mainCoinsInfo,
     });
 
-    return { totalInvested, investmentPeriod, result };
+    const coins = CryptoService.getCoinsProfit({
+      monthlyInvestment: cryptoData.monthlyInvestment,
+      mainCoinsData,
+    });
+
+    return { totalInvested, investmentPeriod, coins };
   },
 };
