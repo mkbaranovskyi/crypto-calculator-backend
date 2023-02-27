@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon';
-import { MIN_COIN_DATE } from '../../shared/consts';
+import { MAX_NUMBER_OF_COINS_TO_INVEST, MIN_COIN_DATE } from '../../shared/consts';
 import { CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
 import { LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { statusOutputSuccess } from '../../shared/view-models';
 import { CoinListSchema, ICoinListBodyInput } from './schemas';
 
 export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
@@ -48,6 +47,6 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
 
     await cryptoData.save();
 
-    return statusOutputSuccess;
+    return { maxNumberOfCoinsToInvest: MAX_NUMBER_OF_COINS_TO_INVEST };
   },
 };
