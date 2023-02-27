@@ -1,6 +1,3 @@
-interface ICalculateProfitBodyInput {
-  coinId: string;
-  share: number;
-}
+import { ICoinShareData } from '../../../shared/coin-gecko';
 
-export type CalculateProfitBodyInput = ICalculateProfitBodyInput[];
+export type CalculateProfitBodyInput = ICoinShareData[];

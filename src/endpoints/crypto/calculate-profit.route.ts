@@ -1,4 +1,5 @@
 import { DateTime } from 'luxon';
+import { ICoinsPrices } from '../../shared/coin-gecko';
 import { MAX_NUMBER_OF_COINS_TO_INVEST } from '../../shared/consts';
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException, InternalServerError } from '../../shared/errors';
@@ -61,7 +62,6 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
     );
 
     if (totalShare < 99.8 || totalShare > 100.2 || isIncorrectDistributionOfShares) {
-      console.log(totalShare);
       throw new BadRequestException('Incorrect distribution of share.');
     }
 
@@ -77,12 +77,26 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
     const investmentPeriod = diffMonths + counfOfFirstAndLastMonths;
     const totalInvested = investmentPeriod * monthlyInvestment;
 
-    const test1 = await CryptoService.getCoinPrices({
-      coinId: 'bitcoin',
-      startDate: start,
-      endDate: end,
+    const coinsPricesPromises = coinsId.map((coinId) =>
+      CryptoService.getCoinPrices({ coinId, startDate: start, endDate: end })
+    );
+
+    const coinsPrices = await Promise.all(coinsPricesPromises);
+
+    const formatCoinsPrices: ICoinsPrices = {};
+
+    for (const coinPrice of coinsPrices) {
+      const coindId = Object.keys(coinPrice).at(-1);
+
+      formatCoinsPrices[coindId!] = coinPrice[coindId!];
+    }
+
+    const result = CryptoService.getProfitOfCoins({
+      monthlyInvestment: cryptoData.monthlyInvestment,
+      coinsPrices: formatCoinsPrices,
+      coinsShares: selectedCoins,
     });
 
-    return { totalInvested, investmentPeriod, test1 };
+    return { totalInvested, investmentPeriod, result };
   },
 };
