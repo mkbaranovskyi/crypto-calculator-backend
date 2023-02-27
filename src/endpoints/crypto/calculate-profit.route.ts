@@ -2,11 +2,12 @@ import { DateTime } from 'luxon';
 import { CryptoService } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
 import { calculateProfitErrorHandler } from './error-handlers';
-import { CalculateProfitBodyInput } from './schemas';
+import { CalculateProfitBodyInput, CalculateProfitSchema } from './schemas';
 
 export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBodyInput }> = {
   url: '/calculate-profit',
   method: 'POST',
+  schema: CalculateProfitSchema,
   handler: async (req, reply) => {
     const selectedCoins = req.body;
 
