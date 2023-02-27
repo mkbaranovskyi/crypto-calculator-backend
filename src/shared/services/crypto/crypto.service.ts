@@ -102,7 +102,7 @@ export const getCoinsProfit = ({
       name,
       symbol,
       share,
-      invested,
+      invested: Number(invested.toFixed(2)),
       capital,
       lastPrice,
       purchasedCoins,
