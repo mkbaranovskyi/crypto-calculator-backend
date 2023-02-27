@@ -65,14 +65,22 @@ export const getMainCoinsData = ({
   });
 
 const getInvestAndPurchased = (inputInvest: number, prices: number[]) => {
-  const result = { totalInvested: 0, purchasedCoins: 0 };
+  const result = { invested: 0, purchasedCoins: 0 };
 
   for (const price of prices) {
-    result.totalInvested += inputInvest;
+    result.invested += inputInvest;
     result.purchasedCoins += inputInvest / price;
   }
 
   return result;
+};
+
+export const getGrowth = (invested: number, capital: number) => {
+  const percentOfInvestFromFinal = (invested * 100) / capital;
+  const increaseIn = capital / invested;
+  const growth = Number(((100 - percentOfInvestFromFinal) * increaseIn).toFixed(2));
+
+  return growth;
 };
 
 export const getCoinsProfit = ({
@@ -82,14 +90,11 @@ export const getCoinsProfit = ({
   mainCoinsData.map(({ coinId, image, name, prices, share, symbol }) => {
     const monthlyInvestShare = (monthlyInvestment / 100) * share;
 
-    const { purchasedCoins, totalInvested } = getInvestAndPurchased(monthlyInvestShare, prices);
+    const { purchasedCoins, invested } = getInvestAndPurchased(monthlyInvestShare, prices);
 
     const lastPrice = prices.at(-1) || 0;
-    const finalCapital = Number((purchasedCoins * lastPrice).toFixed(2));
-
-    const percentOfInvestFromFinal = (totalInvested * 100) / finalCapital;
-    const increaseIn = finalCapital / totalInvested;
-    const growth = Number(((100 - percentOfInvestFromFinal) * increaseIn).toFixed(2));
+    const capital = Number((purchasedCoins * lastPrice).toFixed(2));
+    const growth = getGrowth(invested, capital);
 
     return {
       coinId,
@@ -97,8 +102,8 @@ export const getCoinsProfit = ({
       name,
       symbol,
       share,
-      totalInvested,
-      finalCapital,
+      invested,
+      capital,
       lastPrice,
       purchasedCoins,
       growth,

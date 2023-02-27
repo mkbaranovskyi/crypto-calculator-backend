@@ -1,10 +1,9 @@
 import { DateTime } from 'luxon';
-import { ICoinMainData, ICoinPrices } from '../../shared/types';
 import { MAX_NUMBER_OF_COINS_TO_INVEST } from '../../shared/consts';
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException, InternalServerError } from '../../shared/errors';
 import { CryptoService, LocalStorage } from '../../shared/services';
-import { AvialableCoinsType, RouteCustomOptions } from '../../shared/types';
+import { RouteCustomOptions } from '../../shared/types';
 import { CalculateProfitBodyInput } from './schemas';
 import { infoSelectedKeys } from './types';
 
@@ -92,11 +91,20 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
       mainCoinsInfo: mainCoinsInfo,
     });
 
-    const coins = CryptoService.getCoinsProfit({
+    const coinsProfit = CryptoService.getCoinsProfit({
       monthlyInvestment: cryptoData.monthlyInvestment,
       mainCoinsData,
     });
 
-    return { totalInvested, investmentPeriod, coins };
+    const totalCapital = coinsProfit.reduce((prev, { capital }) => prev + capital, 0);
+    const totalGrowth = CryptoService.getGrowth(totalInvested, totalCapital);
+
+    return {
+      totalInvested,
+      investmentPeriod,
+      totalCapital,
+      totalGrowth,
+      coins: coinsProfit,
+    };
   },
 };
