@@ -23,7 +23,7 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
 
     const counfOfFirstAndLastMonths = 2;
     const investmentPeriod = diffMonths + counfOfFirstAndLastMonths;
-    const totalInvested = investmentPeriod * monthlyInvestment;
+    const totalInvested = Number((investmentPeriod * monthlyInvestment).toFixed(2));
 
     const coinsPricesPromises = selectedCoins.map(({ coinId }) =>
       CryptoService.getCoinPrices({ coinId, startDate: start, endDate: end })
@@ -51,7 +51,7 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
       coinsPrices,
       totalInvested,
       investmentPeriod,
-      totalCapital,
+      totalCapital: Number(totalCapital.toFixed(2)),
       totalGrowth,
       coins: coinsProfit,
     };

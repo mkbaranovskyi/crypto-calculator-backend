@@ -164,6 +164,7 @@ export const getCoinsProfit = ({
 
     const { purchasedCoins, invested } = getInvestAndPurchased(monthlyInvestShare, prices);
 
+    const startingPrice = prices.at(0) || 0;
     const lastPrice = prices.at(-1) || 0;
     const capital = Number((purchasedCoins * lastPrice).toFixed(2));
     const growth = getGrowth(invested, capital);
@@ -176,6 +177,7 @@ export const getCoinsProfit = ({
       share,
       invested: Number(invested.toFixed(2)),
       capital,
+      startingPrice: fixedPrice(startingPrice),
       lastPrice: fixedPrice(lastPrice),
       purchasedCoins: fixedCoinsNumber(lastPrice, purchasedCoins),
       growth,
