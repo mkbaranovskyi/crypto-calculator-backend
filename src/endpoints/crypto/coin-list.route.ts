@@ -21,7 +21,7 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
     }
 
     if (endDate > currentDate) {
-      throw new BadRequestException('Start date cannot be more than today.');
+      throw new BadRequestException('End date cannot be more than today.');
     }
 
     if (startDate > endDate) {
