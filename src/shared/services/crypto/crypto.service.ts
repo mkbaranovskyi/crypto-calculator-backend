@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
+import { coinSearchRoute } from '../../../endpoints/crypto/coin-search.route';
 import { ICoinsMarketChartRangeResponse } from '../../coin-gecko';
 import { coinGeckoConfig } from '../../configs';
 import { INVEST_DAY_OF_MONTH } from '../../consts';
@@ -102,6 +103,32 @@ export const getGrowth = (invested: number, capital: number) => {
   return growth;
 };
 
+const fixedPrice = (inputPrice: number) => {
+  let resultPrice = NaN;
+
+  const price = String(inputPrice);
+  const symbolsBeforeDot = price.split('.')[0];
+  const beforeDotLength = Number(symbolsBeforeDot) === 0 ? 0 : symbolsBeforeDot.length;
+
+  if (beforeDotLength >= 1) {
+    resultPrice = Number(inputPrice.toFixed(2));
+  } else {
+    const fixedNumbers = 4;
+    const firstTwoSymbols = 2;
+
+    for (let index = 0; index < price.length; index++) {
+      const symbol = price[index];
+
+      if (Number(symbol) > 0) {
+        resultPrice = Number(inputPrice.toFixed(fixedNumbers + index - firstTwoSymbols));
+        break;
+      }
+    }
+  }
+
+  return resultPrice;
+};
+
 export const getCoinsProfit = ({
   monthlyInvestment,
   mainCoinsData,
@@ -123,7 +150,7 @@ export const getCoinsProfit = ({
       share,
       invested: Number(invested.toFixed(2)),
       capital,
-      lastPrice,
+      lastPrice: fixedPrice(lastPrice),
       purchasedCoins,
       growth,
     };
