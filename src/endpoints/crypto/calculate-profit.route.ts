@@ -48,6 +48,7 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
     const totalGrowth = CryptoService.getGrowth(totalInvested, totalCapital);
 
     return {
+      coinsPrices,
       totalInvested,
       investmentPeriod,
       totalCapital,

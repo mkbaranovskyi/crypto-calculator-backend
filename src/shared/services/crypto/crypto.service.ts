@@ -21,33 +21,52 @@ export const getCoinPrices = async ({
   startDate,
   endDate,
 }: IGetCoinPricesInput): Promise<GetCoinsPricesOutput> => {
-  const correctStartDate = Math.floor(startDate.toMillis() / 1000);
-  const correctEndDate = Math.floor(endDate.toMillis() / 1000);
+  const unixStartDate = startDate.toUnixInteger();
+  const unixEndDate = endDate.toUnixInteger();
 
   const res = await fetch(
-    `${coinGeckoConfig.url}/coins/${coinId}/market_chart/range?vs_currency=usd&from=${correctStartDate}&to=${correctEndDate}`
+    `${coinGeckoConfig.url}/coins/${coinId}/market_chart/range?vs_currency=usd&from=${unixStartDate}&to=${unixEndDate}`
   );
 
   const data: ICoinsMarketChartRangeResponse = await res.json();
 
-  const prices: number[] = [];
+  const resultPrices: number[] = [];
 
-  for (const [timestamp, price] of data.prices) {
-    const priceDate = DateTime.fromMillis(timestamp);
+  if (isSameDate(startDate, endDate)) {
+    const hasPrice = data.prices.at(-1);
 
-    if (isSameDate(priceDate, startDate) || isSameDate(priceDate, endDate)) {
-      prices.push(price);
+    if (hasPrice) {
+      const [timestamp, price] = hasPrice;
+      resultPrices.push(price);
     }
+  } else {
+    const datePrices = new Set<string>();
 
-    const inNotSameMonthAndYear =
-      !isSameMonthAndYear(priceDate, startDate) || !isSameMonthAndYear(priceDate, endDate);
+    for (let index = 0; index < data.prices.length; index++) {
+      const [timestamp, price] = data.prices[index];
 
-    if (inNotSameMonthAndYear && priceDate.day === INVEST_DAY_OF_MONTH) {
-      prices.push(price);
+      if (index === 0 || index === data.prices.length - 1) {
+        resultPrices.push(price);
+      } else {
+        const priceDate = DateTime.fromMillis(timestamp);
+        const priceDateString = priceDate.toLocaleString();
+
+        const isMonthAndYearRange =
+          isSameMonthAndYear(priceDate, startDate) || isSameMonthAndYear(priceDate, endDate);
+
+        if (
+          !isMonthAndYearRange &&
+          priceDate.day === INVEST_DAY_OF_MONTH &&
+          !datePrices.has(priceDateString)
+        ) {
+          datePrices.add(priceDateString);
+          resultPrices.push(price);
+        }
+      }
     }
   }
 
-  return { [coinId]: prices };
+  return { [coinId]: resultPrices };
 };
 
 export const getMainCoinsData = ({
