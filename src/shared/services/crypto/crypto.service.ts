@@ -129,6 +129,32 @@ const fixedPrice = (inputPrice: number) => {
   return resultPrice;
 };
 
+const fixedCoinsNumber = (price: number, inputCoinsNumber: number) => {
+  let resultCoinsNumber = NaN;
+
+  const minQuantityBuy = String(1 / price);
+  const symbolsBeforeDot = minQuantityBuy.split('.')[0];
+  const beforeDotLength = Number(symbolsBeforeDot) === 0 ? 0 : symbolsBeforeDot.length;
+
+  if (beforeDotLength >= 1) {
+    resultCoinsNumber = Number(inputCoinsNumber.toFixed(1));
+  } else {
+    const firstTwoSymbols = 2;
+
+    for (let index = 0; index < minQuantityBuy.length; index++) {
+      const symbol = minQuantityBuy[index];
+
+      if (Number(symbol) > 0) {
+        const symbolPos = index + 1;
+        resultCoinsNumber = Number(inputCoinsNumber.toFixed(symbolPos - firstTwoSymbols));
+        break;
+      }
+    }
+  }
+
+  return resultCoinsNumber;
+};
+
 export const getCoinsProfit = ({
   monthlyInvestment,
   mainCoinsData,
@@ -151,7 +177,7 @@ export const getCoinsProfit = ({
       invested: Number(invested.toFixed(2)),
       capital,
       lastPrice: fixedPrice(lastPrice),
-      purchasedCoins,
+      purchasedCoins: fixedCoinsNumber(lastPrice, purchasedCoins),
       growth,
     };
   });
