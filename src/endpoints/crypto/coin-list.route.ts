@@ -4,6 +4,7 @@ import { CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
 import { LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
+import { coinListInputValidation } from './error-handlers';
 import { CoinListSchema, ICoinListBodyInput } from './schemas';
 
 export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
@@ -13,24 +14,7 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
   handler: async (req, reply) => {
     const { startDate, endDate, monthlyInvestment } = req.body;
 
-    const minDate = DateTime.fromISO(MIN_COIN_DATE).toMillis();
-    const currentDate = DateTime.now().toMillis();
-
-    if (startDate < minDate) {
-      throw new BadRequestException(`Start date cannot be less than ${MIN_COIN_DATE}.`);
-    }
-
-    if (endDate > currentDate) {
-      throw new BadRequestException('End date cannot be more than today.');
-    }
-
-    if (startDate > endDate) {
-      throw new BadRequestException('Start date cannot be less than end date.');
-    }
-
-    if (monthlyInvestment < 20) {
-      throw new BadRequestException('Monthly investment cannot be less than 20$.');
-    }
+    coinListInputValidation({ startDate, endDate, monthlyInvestment });
 
     const user = LocalStorage.getUser();
 
