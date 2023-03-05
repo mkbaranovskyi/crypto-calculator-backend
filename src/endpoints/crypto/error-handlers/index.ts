@@ -1,1 +1,1 @@
-export * from './calculate-profit.error-handler';
+export * from './calculate-profit-input.validation.ts';

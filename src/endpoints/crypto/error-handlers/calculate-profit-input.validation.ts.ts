@@ -5,7 +5,7 @@ import { LocalStorage } from '../../../shared/services';
 import { CalculateProfitBodyInput } from '../schemas';
 import { infoSelectedKeys } from '../types';
 
-export const calculateProfitErrorHandler = async (selectedCoins: CalculateProfitBodyInput) => {
+export const calculateProfitInputValidation = async (selectedCoins: CalculateProfitBodyInput) => {
   if (selectedCoins.length === 0) {
     throw new BadRequestException('Must have at least 1 coin.');
   }

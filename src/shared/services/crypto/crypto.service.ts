@@ -1,21 +1,34 @@
 import { DateTime } from 'luxon';
 import fetch from 'node-fetch';
-import { coinSearchRoute } from '../../../endpoints/crypto/coin-search.route';
 import { ICoinsMarketChartRangeResponse } from '../../coin-gecko';
 import { coinGeckoConfig } from '../../configs';
 import { INVEST_DAY_OF_MONTH } from '../../consts';
 import { AvialableCoinsType } from '../../types';
-import { IGetCoinPricesInput, IGetMainCoinsDataInput, IGetCoinsProfitInput } from './inputs';
-import { GetCoinsPricesOutput, GetMainCoinsDataOutput, GetCoinsProfitOutput } from './outputs';
+import {
+  GetTotalCapitalInput,
+  IGetCoinPricesInput,
+  IGetCoinsProfitInput,
+  IGetMainCoinsDataInput,
+} from './inputs';
+import { GetCoinsPricesOutput, GetCoinsProfitOutput, GetMainCoinsDataOutput } from './outputs';
 
 export const getMainCoinsInfo = (coinData: AvialableCoinsType[]) =>
-  coinData.map(({ _id, ...rest }) => ({ ...rest }));
+  coinData.map(({ _id, ...rest }) => rest);
 
-const isSameMonthAndYear = (priceDate: DateTime, usersDate: DateTime) =>
-  priceDate.month === usersDate.month && priceDate.year === usersDate.year;
+const isSameMonthAndYear = (firstDate: DateTime, secondDate: DateTime) =>
+  firstDate.month === secondDate.month && firstDate.year === secondDate.year;
 
-const isSameDate = (priceDate: DateTime, usersDate: DateTime) =>
-  priceDate.day === usersDate.day && isSameMonthAndYear(priceDate, usersDate);
+export const isSameDate = (firstDate: DateTime, secondDate: DateTime) =>
+  firstDate.day === secondDate.day && isSameMonthAndYear(firstDate, secondDate);
+
+export const getInvestmentPeriod = (startDate: DateTime, endDate: DateTime) => {
+  const { months } = startDate.diff(endDate, ['months', 'days']);
+  const diffMonths = Math.abs(months);
+
+  const specifiedNumberOfMonths = isSameDate(startDate, endDate) ? 1 : 2;
+
+  return specifiedNumberOfMonths + diffMonths;
+};
 
 export const getCoinPrices = async ({
   coinId,
@@ -94,6 +107,9 @@ const getInvestAndPurchased = (inputInvest: number, prices: number[]) => {
 
   return result;
 };
+
+export const getTotalCapital = (coinsProfit: GetTotalCapitalInput) =>
+  coinsProfit.reduce((prev, { capital }) => prev + capital, 0);
 
 export const getGrowth = (invested: number, capital: number) => {
   const percentOfInvestFromFinal = (invested * 100) / capital;

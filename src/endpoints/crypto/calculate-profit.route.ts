@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { CryptoService } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { calculateProfitErrorHandler } from './error-handlers';
+import { calculateProfitInputValidation } from './error-handlers';
 import { CalculateProfitBodyInput, CalculateProfitSchema } from './schemas';
 
 export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBodyInput }> = {
@@ -11,18 +11,14 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
   handler: async (req, reply) => {
     const selectedCoins = req.body;
 
-    const { cryptoData, avialableCoins } = await calculateProfitErrorHandler(selectedCoins);
+    const { cryptoData, avialableCoins } = await calculateProfitInputValidation(selectedCoins);
 
     const { startDate, endDate, monthlyInvestment } = cryptoData;
 
     const start = DateTime.fromJSDate(startDate);
     const end = DateTime.fromJSDate(endDate);
 
-    const { months } = start.diff(end, ['months', 'days']);
-    const diffMonths = Math.abs(months);
-
-    const counfOfFirstAndLastMonths = 2;
-    const investmentPeriod = diffMonths + counfOfFirstAndLastMonths;
+    const investmentPeriod = CryptoService.getInvestmentPeriod(start, end);
     const totalInvested = Number((investmentPeriod * monthlyInvestment).toFixed(2));
 
     const coinsPricesPromises = selectedCoins.map(({ coinId }) =>
@@ -44,11 +40,10 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
       mainCoinsData,
     });
 
-    const totalCapital = coinsProfit.reduce((prev, { capital }) => prev + capital, 0);
+    const totalCapital = CryptoService.getTotalCapital(coinsProfit);
     const totalGrowth = CryptoService.getGrowth(totalInvested, totalCapital);
 
     return {
-      coinsPrices,
       totalInvested,
       investmentPeriod,
       totalCapital: Number(totalCapital.toFixed(2)),
