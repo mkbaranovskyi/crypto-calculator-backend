@@ -1,10 +1,10 @@
 import { DateTime } from 'luxon';
-import { MIN_COIN_DATE } from '../../shared/consts';
+import { MAX_NUMBER_OF_COINS_TO_INVEST, MIN_COIN_DATE } from '../../shared/consts';
 import { CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
 import { LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { statusOutputSuccess } from '../../shared/view-models';
+import { validateCoinListInput } from './error-handlers';
 import { CoinListSchema, ICoinListBodyInput } from './schemas';
 
 export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
@@ -14,24 +14,7 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
   handler: async (req, reply) => {
     const { startDate, endDate, monthlyInvestment } = req.body;
 
-    const minDate = DateTime.fromISO(MIN_COIN_DATE).toMillis();
-    const currentDate = DateTime.now().toMillis();
-
-    if (startDate < minDate) {
-      throw new BadRequestException(`Start date cannot be less than ${MIN_COIN_DATE}.`);
-    }
-
-    if (endDate > currentDate) {
-      throw new BadRequestException('Start date cannot be more than today.');
-    }
-
-    if (startDate > endDate) {
-      throw new BadRequestException('Start date cannot be less than end date.');
-    }
-
-    if (monthlyInvestment < 20) {
-      throw new BadRequestException('Monthly investment cannot be less than 20$.');
-    }
+    validateCoinListInput({ startDate, endDate, monthlyInvestment });
 
     const user = LocalStorage.getUser();
 
@@ -48,6 +31,6 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
 
     await cryptoData.save();
 
-    return statusOutputSuccess;
+    return { maxNumberOfCoinsToInvest: MAX_NUMBER_OF_COINS_TO_INVEST };
   },
 };

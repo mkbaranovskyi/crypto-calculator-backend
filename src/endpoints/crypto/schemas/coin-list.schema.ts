@@ -1,4 +1,4 @@
-import { authorizationHeaderSchema, statusOutputSchema } from '../../../shared/models';
+import { authorizationHeaderSchema } from '../../../shared/models';
 
 export interface ICoinListBodyInput {
   startDate: number;
@@ -18,6 +18,8 @@ export const CoinListSchema = {
   },
   headers: authorizationHeaderSchema,
   response: {
-    200: statusOutputSchema,
+    200: {
+      maxNumberOfCoinsToInvest: { type: 'number' },
+    },
   },
 };
