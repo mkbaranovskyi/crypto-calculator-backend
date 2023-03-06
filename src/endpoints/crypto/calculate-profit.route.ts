@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { CryptoService } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { calculateProfitInputValidation } from './error-handlers';
+import { validateCalculateProfitInput } from './error-handlers';
 import { CalculateProfitBodyInput, CalculateProfitSchema } from './schemas';
 
 export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBodyInput }> = {
@@ -11,7 +11,7 @@ export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBod
   handler: async (req, reply) => {
     const selectedCoins = req.body;
 
-    const { cryptoData, avialableCoins } = await calculateProfitInputValidation(selectedCoins);
+    const { cryptoData, avialableCoins } = await validateCalculateProfitInput(selectedCoins);
 
     const { startDate, endDate, monthlyInvestment } = cryptoData;
 

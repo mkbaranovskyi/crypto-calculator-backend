@@ -4,7 +4,7 @@ import { BadRequestException } from '../../../shared/errors';
 import { isSameDate } from '../../../shared/services/crypto';
 import { ICoinListBodyInput } from '../schemas';
 
-export const coinListInputValidation = ({
+export const validateCoinListInput = ({
   startDate,
   endDate,
   monthlyInvestment,

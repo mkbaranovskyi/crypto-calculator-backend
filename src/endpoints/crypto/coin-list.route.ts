@@ -4,7 +4,7 @@ import { CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
 import { LocalStorage } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { coinListInputValidation } from './error-handlers';
+import { validateCoinListInput } from './error-handlers';
 import { CoinListSchema, ICoinListBodyInput } from './schemas';
 
 export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
@@ -14,7 +14,7 @@ export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
   handler: async (req, reply) => {
     const { startDate, endDate, monthlyInvestment } = req.body;
 
-    coinListInputValidation({ startDate, endDate, monthlyInvestment });
+    validateCoinListInput({ startDate, endDate, monthlyInvestment });
 
     const user = LocalStorage.getUser();
 
