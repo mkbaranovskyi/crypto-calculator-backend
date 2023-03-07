@@ -1,4 +1,7 @@
+import fs from 'fs';
+import handlebars from 'handlebars';
 import { createTransport } from 'nodemailer';
+import path from 'path';
 import { smtpConfig } from '../../configs/index';
 import { EmailEnum } from '../../enums';
 import { BadGatewayException, InternalServerError } from '../../errors';
@@ -23,32 +26,31 @@ const transporter = createTransport({
 export const sendMessageToEmail = async (
   toEmail: string,
   code: string,
-  type: string
+  type: EmailEnum
 ): Promise<void> => {
-  const sendData: ISendData = {
-    from: `Kravich13 <${smtpConfig.user}>`,
-    to: `<${toEmail}>`,
-    subject: '',
-    html: '',
-  };
+  const actionTypeTitle = type === EmailEnum.REGISTRATION_LETTER ? 'registration' : 'recovery';
 
-  switch (type) {
-    case EmailEnum.REGISTRATION_LETTER:
-      sendData.subject = 'Crypto-Financial-Calculator: регистрация аккаунта';
-      sendData.html = `<h3>Ваш код активации аккаунта:</h3>\n<h2>${code}</h2>`;
-      break;
-    case EmailEnum.RECOVERY_LETTER:
-      sendData.subject = 'Crypto-Financial-Calculator: восстановление аккаунта';
-      sendData.html = `<h3>Ваш код восстановления аккаунта:</h3>\n<h2>${code}</h2>`;
-      break;
-    default:
+  const filePath = path.resolve(process.cwd(), 'email-html/index.html');
+
+  fs.readFile(filePath, async (err, data) => {
+    if (err) {
       throw new InternalServerError('Server error while sending email.');
-  }
+    }
 
-  try {
-    await transporter.sendMail(sendData);
-  } catch (err) {
-    console.log(err);
-    throw new BadGatewayException('Bad gateway');
-  }
+    try {
+      const template = handlebars.compile(data.toString());
+
+      const sendMail: ISendData = {
+        from: `Kravich13 <${smtpConfig.user}>`,
+        to: `<${toEmail}>`,
+        subject: `Crypto-Financial-Calculator: account ${actionTypeTitle}`,
+        html: template({ activateType: actionTypeTitle, code }),
+      };
+
+      await transporter.sendMail(sendMail);
+    } catch (err) {
+      console.log(err);
+      throw new BadGatewayException('Bad gateway');
+    }
+  });
 };
