@@ -1,7 +1,8 @@
 import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
+import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { EmailEnum } from '../../shared/enums';
+import { EmailEnum, UserStateEnum } from '../../shared/enums';
 import { BadRequestException } from '../../shared/errors';
 import {
   EmailService,
@@ -31,6 +32,8 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
     const salt = randomUUID();
     const passwordHash = HashingService.createHash(password, sessionKey);
     const dataUser = UserEntity.create({ email, passwordHash });
+
+    reply.setCookie(USER_STATE_COOKIE, user!.state || UserStateEnum.NOT_VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
