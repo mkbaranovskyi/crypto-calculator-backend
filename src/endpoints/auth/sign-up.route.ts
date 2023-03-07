@@ -33,7 +33,7 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
     const passwordHash = HashingService.createHash(password, sessionKey);
     const dataUser = UserEntity.create({ email, passwordHash });
 
-    reply.setCookie(USER_STATE_COOKIE, user!.state || UserStateEnum.NOT_VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, UserStateEnum.NOT_VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

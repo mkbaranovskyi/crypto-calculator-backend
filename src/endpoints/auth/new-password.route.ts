@@ -43,7 +43,7 @@ export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput 
 
     await VerificationCodeEntity.delete({ userId: String(user._id) });
 
-    reply.setCookie(USER_STATE_COOKIE, user.state || UserStateEnum.NOT_VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, UserStateEnum.VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

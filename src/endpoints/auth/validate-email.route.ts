@@ -1,3 +1,4 @@
+import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { UserStateEnum } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
@@ -21,6 +22,8 @@ export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodySc
     } catch (err: any) {
       throw new UnauthorizedException(err.message);
     }
+
+    reply.setCookie(USER_STATE_COOKIE, UserStateEnum.VERIFIED);
 
     await UserEntity.update(user._id, { state: UserStateEnum.VERIFIED });
 
