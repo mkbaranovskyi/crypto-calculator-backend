@@ -1,5 +1,5 @@
 import { FastifySchema } from 'fastify';
-import { jwtSchema } from '../../../shared/models';
+import { jwtBodySchema } from '../../../shared/models';
 
 export interface ICheckAuthBodySchema {
   refreshToken: string;
@@ -14,6 +14,6 @@ export const checkAuthSchema: FastifySchema = {
     required: ['refreshToken'],
   },
   response: {
-    200: jwtSchema,
+    200: jwtBodySchema,
   },
 };

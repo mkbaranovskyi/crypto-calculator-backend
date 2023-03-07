@@ -1,4 +1,4 @@
-import { jwtSchema } from '../../../shared/models';
+import { jwtBodySchema } from '../../../shared/models';
 
 export interface INewPasswordBodyInput {
   email: string;
@@ -21,6 +21,6 @@ export const newPasswordSchema = {
     required: ['email', 'password', 'code'],
   },
   response: {
-    200: jwtSchema,
+    200: jwtBodySchema,
   },
 };

@@ -11,14 +11,14 @@ import {
   VerificationCodeService,
 } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { ISignUpOrInBodyInput, signUpOrInSchema } from './schemas';
+import { ISignUpBodyInput, signUpSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
+export const signUpRoute: RouteCustomOptions<{ Body: ISignUpBodyInput }> = {
   url: '/sign-up',
   method: 'POST',
-  schema: signUpOrInSchema,
+  schema: signUpSchema,
   handler: async (req, reply) => {
     const { email, password } = req.body;
 
@@ -51,7 +51,7 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
 
     await VerificationCodeEntity.create({
       userId: String(dataUser._id),
-      code: '123456',
+      code,
       expiresAt,
     }).save();
 
@@ -62,6 +62,7 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
       refreshToken,
       accessTokenExpiresIn,
       refreshTokenExpiresIn,
+      emailCodeExpiresIn: expiresAt,
     };
   },
 };

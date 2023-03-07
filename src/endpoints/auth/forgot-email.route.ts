@@ -1,13 +1,13 @@
 import { DateTime } from 'luxon';
+import { emailConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { EmailEnum } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { EmailService, VerificationCodeService } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { statusOutputSuccess } from '../../shared/view-models';
-import { ForgotEmailSchema, IForgotEmailBodySchema } from './schemas';
+import { ForgotEmailSchema, IForgotEmailBodyInput } from './schemas';
 
-export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema }> = {
+export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodyInput }> = {
   url: '/email/forgot',
   method: 'POST',
   schema: ForgotEmailSchema,
@@ -26,7 +26,9 @@ export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema
 
     if (savedCode) {
       const currentDate = DateTime.utc();
-      const codeExpiresAt = DateTime.fromJSDate(savedCode.createdAt).plus({ seconds: 90 });
+      const codeExpiresAt = DateTime.fromJSDate(savedCode.createdAt).plus({
+        seconds: emailConfig.expiresIn,
+      });
 
       if (+currentDate < +codeExpiresAt) {
         throw new BadRequestException('Wait before you can request another code.');
@@ -38,6 +40,6 @@ export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodySchema
     await VerificationCodeEntity.create({ userId: String(user._id), code, expiresAt }).save();
     await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
 
-    return statusOutputSuccess;
+    return { emailCodeExpiresIn: DateTime.fromJSDate(expiresAt).toMillis() };
   },
 };

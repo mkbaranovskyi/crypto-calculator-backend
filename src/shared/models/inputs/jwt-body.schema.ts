@@ -1,4 +1,4 @@
-export const jwtSchema = {
+export const jwtBodySchema = {
   type: 'object',
   properties: {
     accessToken: { type: 'string' },

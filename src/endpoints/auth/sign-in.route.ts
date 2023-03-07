@@ -5,14 +5,14 @@ import { UserStateEnum } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
-import { ISignUpOrInBodyInput, signUpOrInSchema } from './schemas';
+import { ISignInBodyInput, signInSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signInRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
+export const signInRoute: RouteCustomOptions<{ Body: ISignInBodyInput }> = {
   url: '/sign-in',
   method: 'POST',
-  schema: signUpOrInSchema,
+  schema: signInSchema,
   handler: async (req, reply) => {
     const { email, password: inputPassword } = req.body;
 
