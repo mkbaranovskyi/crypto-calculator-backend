@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { DateTime } from 'luxon';
+import { JWTService } from '..';
 import { LoggerInstance } from '../logger';
 import { IGenerateTokensInput } from './inputs';
-import { IGenerateTokensOutput } from './outputs';
+import { DecodeTokenOutput, IGenerateTokensOutput } from './outputs';
 
 const createToken = async (
   sessionKey: string,
@@ -20,6 +21,24 @@ const createToken = async (
       }
     });
   });
+};
+
+export const checkRefreshToken = async (
+  jwtSecret: string,
+  token: string
+): Promise<DecodeTokenOutput> => {
+  const cleanedUpCode = token.replace('Bearer ', '');
+
+  const tokenData = await JWTService.decodeToken(cleanedUpCode, jwtSecret);
+
+  if (tokenData && tokenData.exp) {
+    const currentDate = DateTime.utc().toMillis();
+    const codeExpiresAt = DateTime.fromSeconds(tokenData.exp).toMillis();
+
+    return currentDate < codeExpiresAt ? tokenData : null;
+  }
+
+  return null;
 };
 
 export const generateTokens = async ({
@@ -46,11 +65,11 @@ export const generateTokens = async ({
   return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
 };
 
-export const decodeToken = async (token: string, jwtSecret: string): Promise<string | null> => {
+export const decodeToken = async (token: string, jwtSecret: string): Promise<DecodeTokenOutput> => {
   let result = null;
 
   try {
-    result = await new Promise<jwt.JwtPayload>((res, rej) => {
+    result = await new Promise<DecodeTokenOutput>((res, rej) => {
       jwt.verify(token, jwtSecret, (err, decoded: any) => {
         if (err) {
           throw err;
@@ -66,5 +85,5 @@ export const decodeToken = async (token: string, jwtSecret: string): Promise<str
     return null;
   }
 
-  return result.sessionKey;
+  return result;
 };

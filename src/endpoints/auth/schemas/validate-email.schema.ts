@@ -1,6 +1,6 @@
 import { authorizationHeaderSchema, statusOutputSchema } from '../../../shared/models';
 
-export interface IValidateEmailBodySchema {
+export interface IValidateEmailBodyInput {
   code: string;
 }
 

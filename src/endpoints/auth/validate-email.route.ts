@@ -5,9 +5,9 @@ import { UnauthorizedException } from '../../shared/errors';
 import { LocalStorage, VerificationCodeService } from '../../shared/services';
 import { RouteCustomOptions } from '../../shared/types';
 import { statusOutputSuccess } from '../../shared/view-models';
-import { IValidateEmailBodySchema, validateEmailSchema } from './schemas/validate-email.schema';
+import { IValidateEmailBodyInput, validateEmailSchema } from './schemas';
 
-export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodySchema }> = {
+export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodyInput }> = {
   url: '/email/validate',
   method: 'POST',
   schema: validateEmailSchema,
