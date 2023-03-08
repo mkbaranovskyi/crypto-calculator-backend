@@ -3,7 +3,7 @@ import { jwtConfig } from '../../shared/configs';
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { EmailEnum, UserStateEnum } from '../../shared/enums';
-import { BadRequestException } from '../../shared/errors';
+import { BadRequestException, InternalServerError } from '../../shared/errors';
 import {
   EmailService,
   HashingService,
@@ -55,7 +55,11 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpBodyInput }> = {
       expiresAt,
     }).save();
 
-    await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
+    try {
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
+    } catch (err) {
+      new InternalServerError(err);
+    }
 
     return {
       accessToken,

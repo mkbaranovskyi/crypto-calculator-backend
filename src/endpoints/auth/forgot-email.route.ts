@@ -2,8 +2,13 @@ import { DateTime } from 'luxon';
 import { emailConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { EmailEnum } from '../../shared/enums';
-import { BadRequestException, UnauthorizedException } from '../../shared/errors';
+import {
+  BadRequestException,
+  InternalServerError,
+  UnauthorizedException,
+} from '../../shared/errors';
 import { EmailService, VerificationCodeService } from '../../shared/services';
+import { LoggerInstance } from '../../shared/services/logger';
 import { RouteCustomOptions } from '../../shared/types';
 import { ForgotEmailSchema, IForgotEmailBodyInput } from './schemas';
 
@@ -38,7 +43,12 @@ export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodyInput 
     }
 
     await VerificationCodeEntity.create({ userId: String(user._id), code, expiresAt }).save();
-    await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
+
+    try {
+      await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
+    } catch (err) {
+      new InternalServerError(err);
+    }
 
     return { emailCodeExpiresIn: DateTime.fromJSDate(expiresAt).toMillis() };
   },

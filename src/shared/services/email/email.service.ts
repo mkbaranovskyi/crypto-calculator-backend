@@ -1,17 +1,10 @@
 import fs from 'fs';
 import handlebars from 'handlebars';
 import { createTransport } from 'nodemailer';
+import { MailOptions } from 'nodemailer/lib/sendmail-transport';
 import path from 'path';
 import { smtpConfig } from '../../configs/index';
 import { EmailEnum } from '../../enums';
-import { BadGatewayException, InternalServerError } from '../../errors';
-
-interface ISendData {
-  from: string;
-  to: string;
-  subject: string;
-  html: string;
-}
 
 const transporter = createTransport({
   host: smtpConfig.host,
@@ -23,6 +16,32 @@ const transporter = createTransport({
   },
 });
 
+const getStringFile = async (): Promise<string> => {
+  const filePath = path.resolve(process.cwd(), 'html/email-index.html');
+
+  const stringFile = await new Promise<string>((res) => {
+    fs.readFile(filePath, async (err, data) => {
+      if (err) {
+        throw err;
+      }
+
+      res(data.toString());
+    });
+  });
+
+  return stringFile;
+};
+
+const stringFile = getStringFile();
+
+const getEmailHTML = async <T extends object>(templateContext: T): Promise<string> => {
+  const handlebarFileString = await stringFile;
+
+  const template = handlebars.compile(handlebarFileString);
+
+  return template(templateContext);
+};
+
 export const sendMessageToEmail = async (
   toEmail: string,
   code: string,
@@ -30,27 +49,14 @@ export const sendMessageToEmail = async (
 ): Promise<void> => {
   const actionTypeTitle = type === EmailEnum.REGISTRATION_LETTER ? 'registration' : 'recovery';
 
-  const filePath = path.resolve(process.cwd(), 'email-html/index.html');
+  const html = await getEmailHTML({ activateType: actionTypeTitle, code });
 
-  fs.readFile(filePath, async (err, data) => {
-    if (err) {
-      throw new InternalServerError('Server error while sending email.');
-    }
+  const sendMail: MailOptions = {
+    from: `<${smtpConfig.user}>`,
+    to: `<${toEmail}>`,
+    subject: `Crypto Financial Calculator: account ${actionTypeTitle}`,
+    html,
+  };
 
-    try {
-      const template = handlebars.compile(data.toString());
-
-      const sendMail: ISendData = {
-        from: `Kravich13 <${smtpConfig.user}>`,
-        to: `<${toEmail}>`,
-        subject: `Crypto-Financial-Calculator: account ${actionTypeTitle}`,
-        html: template({ activateType: actionTypeTitle, code }),
-      };
-
-      await transporter.sendMail(sendMail);
-    } catch (err) {
-      console.log(err);
-      throw new BadGatewayException('Bad gateway');
-    }
-  });
+  await transporter.sendMail(sendMail);
 };
