@@ -23,17 +23,17 @@ const createToken = async (
   });
 };
 
-export const checkRefreshToken = async (
+export const verifyRefreshToken = async (
   jwtSecret: string,
   token: string
 ): Promise<DecodeTokenOutput> => {
-  const tokenData = await JWTService.decodeToken(token, jwtSecret);
+  const tokenPayload = await JWTService.decodeToken(token, jwtSecret);
 
-  if (tokenData) {
+  if (tokenPayload) {
     const currentDate = DateTime.utc().toMillis();
-    const codeExpiresAt = DateTime.fromSeconds(tokenData.exp).toMillis();
+    const codeExpiresAt = DateTime.fromSeconds(tokenPayload.exp).toMillis();
 
-    return currentDate < codeExpiresAt ? tokenData : null;
+    return currentDate < codeExpiresAt ? tokenPayload : null;
   }
 
   return null;

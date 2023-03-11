@@ -16,13 +16,13 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
   handler: async (req, reply) => {
     const { refreshToken: inputRefreshToken } = req.body;
 
-    const tokenData = await JWTService.checkRefreshToken(secret, inputRefreshToken);
+    const tokenPayload = await JWTService.verifyRefreshToken(secret, inputRefreshToken);
 
-    if (!tokenData) {
+    if (!tokenPayload) {
       throw UnauthorizedException('Invalid refresh token.');
     }
 
-    const user = await UserEntity.findOneBy({ sessionKey: tokenData.sessionKey });
+    const user = await UserEntity.findOneBy({ sessionKey: tokenPayload.sessionKey });
 
     if (!user) {
       throw UnauthorizedException('Invalid refresh token.');
@@ -32,7 +32,7 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
-        sessionKey: tokenData.sessionKey,
+        sessionKey: tokenPayload.sessionKey,
         jwtSecret: secret,
         accessDeathDate,
         refreshDeathDate,
