@@ -27,11 +27,9 @@ export const checkRefreshToken = async (
   jwtSecret: string,
   token: string
 ): Promise<DecodeTokenOutput> => {
-  const cleanedUpCode = token.replace('Bearer ', '');
+  const tokenData = await JWTService.decodeToken(token, jwtSecret);
 
-  const tokenData = await JWTService.decodeToken(cleanedUpCode, jwtSecret);
-
-  if (tokenData && tokenData.exp) {
+  if (tokenData) {
     const currentDate = DateTime.utc().toMillis();
     const codeExpiresAt = DateTime.fromSeconds(tokenData.exp).toMillis();
 

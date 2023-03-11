@@ -9,8 +9,8 @@ import { checkAuthSchema, ICheckAuthBodySchema as ICheckAuthBodyInput } from './
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const checkAuthRoute: RouteCustomOptions<{ Body: ICheckAuthBodyInput }> = {
-  url: '/check-auth',
+export const refreshTokensRoute: RouteCustomOptions<{ Body: ICheckAuthBodyInput }> = {
+  url: '/refresh-tokens',
   method: 'POST',
   schema: checkAuthSchema,
   handler: async (req, reply) => {

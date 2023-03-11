@@ -3,13 +3,14 @@ import { jwtConfig } from '../../shared/configs';
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { EmailEnum, UserStateEnum } from '../../shared/enums';
-import { BadRequestException, InternalServerError } from '../../shared/errors';
+import { BadRequestException } from '../../shared/errors';
 import {
   EmailService,
   HashingService,
   JWTService,
   VerificationCodeService,
 } from '../../shared/services';
+import { LoggerInstance } from '../../shared/services/logger';
 import { RouteCustomOptions } from '../../shared/types';
 import { ISignUpBodyInput, signUpSchema } from './schemas';
 
@@ -58,7 +59,7 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpBodyInput }> = {
     try {
       await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
     } catch (err) {
-      new InternalServerError(err);
+      LoggerInstance.error('Send message to email error.');
     }
 
     return {

@@ -5,11 +5,14 @@ import { CoinListEntity, CryptoDataEntity, UserEntity, VerificationCodeEntity } 
 export const connectToDB = async () => {
   await new DataSource({
     type: 'mongodb',
-    url: mongoConfig.url,
+    username: 'root',
+    password: 'pass',
+    database: 'crypto-calculator',
+    authSource: 'admin',
+    port: 27017,
     useUnifiedTopology: true,
     useNewUrlParser: true,
     synchronize: false,
-    authSource: 'admin',
     entities: [UserEntity, VerificationCodeEntity, CoinListEntity, CryptoDataEntity],
   }).initialize();
 };

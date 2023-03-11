@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import Ajv from 'ajv';
 import ajvFormats from 'ajv-formats';
 import fastify from 'fastify';

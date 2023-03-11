@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "debug": "tsc-watch -p tsconfig.json --onSuccess 'node --inspect=0.0.0.0:9229 ./lib'",
-    "start": "node lib/index"
+    "dev": "tsc-watch -p tsconfig.json --onSuccess 'node --inspect=0.0.0.0:9229 ./lib'",
+    "prod": "node lib/index"
   },
   "keywords": [],
   "author": "",
@@ -28,8 +28,8 @@
     "@fastify/swagger": "^7.4.1",
     "ajv": "^8.11.0",
     "ajv-formats": "^2.1.1",
+    "dotenv": "^16.0.3",
     "fastify": "^4.2.1",
-    "fs": "^0.0.1-security",
     "handlebars": "^4.7.7",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^3.0.1",

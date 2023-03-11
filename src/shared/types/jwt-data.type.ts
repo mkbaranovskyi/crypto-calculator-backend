@@ -1,5 +1,5 @@
-import type { JwtPayload } from 'jsonwebtoken';
-
-export interface IJWTData extends JwtPayload {
+export interface IJWTData {
   sessionKey: string;
+  exp: number;
+  iat: number;
 }

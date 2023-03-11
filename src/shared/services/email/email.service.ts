@@ -47,16 +47,25 @@ export const sendMessageToEmail = async (
   code: string,
   type: EmailEnum
 ): Promise<void> => {
-  const actionTypeTitle = type === EmailEnum.REGISTRATION_LETTER ? 'registration' : 'recovery';
+  let actionTypeTitle = '';
+
+  switch (type) {
+    case EmailEnum.REGISTRATION_LETTER:
+      actionTypeTitle = 'registration';
+      break;
+    case EmailEnum.RECOVERY_LETTER:
+      actionTypeTitle = 'recovery';
+      break;
+  }
 
   const html = await getEmailHTML({ activateType: actionTypeTitle, code });
 
-  const sendMail: MailOptions = {
+  const mailOptions: MailOptions = {
     from: `<${smtpConfig.user}>`,
     to: `<${toEmail}>`,
     subject: `Crypto Financial Calculator: account ${actionTypeTitle}`,
     html,
   };
 
-  await transporter.sendMail(sendMail);
+  await transporter.sendMail(mailOptions);
 };
