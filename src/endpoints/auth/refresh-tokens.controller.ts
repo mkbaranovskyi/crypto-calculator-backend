@@ -1,7 +1,7 @@
 import { jwtConfig } from '../../shared/configs';
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity } from '../../shared/database';
-import { UserStateEnum } from '../../shared/enums';
+import { USER_STATE } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { JWTService } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
@@ -28,7 +28,7 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
       throw UnauthorizedException('Invalid refresh token.');
     }
 
-    reply.setCookie(USER_STATE_COOKIE, user.state || UserStateEnum.NOT_VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, user.state || USER_STATE.NOT_VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

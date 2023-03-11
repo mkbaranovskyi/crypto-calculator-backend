@@ -1,6 +1,6 @@
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { UserStateEnum } from '../../shared/enums';
+import { USER_STATE } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { LocalStorage, VerificationCodeService } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
@@ -23,9 +23,9 @@ export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBo
       throw new UnauthorizedException(err.message);
     }
 
-    reply.setCookie(USER_STATE_COOKIE, UserStateEnum.VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, USER_STATE.VERIFIED);
 
-    await UserEntity.update(user._id, { state: UserStateEnum.VERIFIED });
+    await UserEntity.update(user._id, { state: USER_STATE.VERIFIED });
 
     return statusOutputSuccess;
   },

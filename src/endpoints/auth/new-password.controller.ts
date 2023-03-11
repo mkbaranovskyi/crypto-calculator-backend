@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { UserStateEnum } from '../../shared/enums';
+import { USER_STATE } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService, VerificationCodeService } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
@@ -43,7 +43,7 @@ export const newPasswordController: ControllerOptions<{ Body: INewPasswordBodyIn
 
     await VerificationCodeEntity.delete({ userId: String(user._id) });
 
-    reply.setCookie(USER_STATE_COOKIE, UserStateEnum.VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, USER_STATE.VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

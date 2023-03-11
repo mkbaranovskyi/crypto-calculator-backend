@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { EmailEnum, UserStateEnum } from '../../shared/enums';
+import { EMAIL, USER_STATE } from '../../shared/enums';
 import { BadRequestException } from '../../shared/errors';
 import {
   EmailService,
@@ -34,7 +34,7 @@ export const signUpController: ControllerOptions<{ Body: ISignUpBodyInput }> = {
     const passwordHash = HashingService.createHash(password, sessionKey);
     const dataUser = UserEntity.create({ email, passwordHash });
 
-    reply.setCookie(USER_STATE_COOKIE, UserStateEnum.NOT_VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, USER_STATE.NOT_VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
@@ -57,7 +57,7 @@ export const signUpController: ControllerOptions<{ Body: ISignUpBodyInput }> = {
     }).save();
 
     try {
-      await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
+      await EmailService.sendMessageToEmail(email, code, EMAIL.REGISTRATION_LETTER);
     } catch (err) {
       LoggerInstance.error('Send message to email error.');
     }

@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { emailConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { EmailEnum } from '../../shared/enums';
+import { EMAIL } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { EmailService, VerificationCodeService } from '../../shared/services';
 import { LoggerInstance } from '../../shared/services/logger';
@@ -41,7 +41,7 @@ export const forgotEmailController: ControllerOptions<{ Body: IForgotEmailBodyIn
     await VerificationCodeEntity.create({ userId: String(user._id), code, expiresAt }).save();
 
     try {
-      await EmailService.sendMessageToEmail(email, code, EmailEnum.RECOVERY_LETTER);
+      await EmailService.sendMessageToEmail(email, code, EMAIL.RECOVERY_LETTER);
     } catch (err) {
       LoggerInstance.error('Send message to email error.');
     }

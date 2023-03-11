@@ -1,7 +1,7 @@
 import { jwtConfig } from '../../shared/configs';
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity } from '../../shared/database';
-import { UserStateEnum } from '../../shared/enums';
+import { USER_STATE } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
@@ -29,7 +29,7 @@ export const signInController: ControllerOptions<{ Body: ISignInBodyInput }> = {
       throw new UnauthorizedException('Wrong email or password.');
     }
 
-    reply.setCookie(USER_STATE_COOKIE, user.state || UserStateEnum.NOT_VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, user.state || USER_STATE.NOT_VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
