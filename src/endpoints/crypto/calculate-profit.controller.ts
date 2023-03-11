@@ -1,10 +1,10 @@
 import { DateTime } from 'luxon';
 import { CryptoService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { validateCalculateProfitInput } from './error-handlers';
 import { CalculateProfitBodyInput, CalculateProfitSchema } from './schemas';
 
-export const calculateProfitRoute: RouteCustomOptions<{ Body: CalculateProfitBodyInput }> = {
+export const calculateProfitController: ControllerOptions<{ Body: CalculateProfitBodyInput }> = {
   url: '/calculate-profit',
   method: 'POST',
   schema: CalculateProfitSchema,

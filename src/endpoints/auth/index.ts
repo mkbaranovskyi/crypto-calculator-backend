@@ -1,13 +1,13 @@
 import { FastifyPluginAsync, FastifyPluginOptions } from 'fastify';
 import { jwtConfig } from '../../shared/configs';
 import { checkAccessToken } from '../../shared/hooks';
-import { refreshTokensRoute } from './check-auth.route';
-import { codeEmailRoute } from './code-email.route';
-import { forgotEmailRoute } from './forgot-email.route';
-import { newPasswordRoute } from './new-password.route';
-import { signInRoute } from './sign-in.route';
-import { signUpRoute } from './sign-up.route';
-import { validateEmailRoute } from './validate-email.route';
+import { codeEmailController } from './code-email.controller';
+import { forgotEmailController } from './forgot-email.controller';
+import { newPasswordController } from './new-password.controller';
+import { refreshTokensController } from './refresh-tokens.controller';
+import { signInController } from './sign-in.controller';
+import { signUpController } from './sign-up.controller';
+import { validateEmailController } from './validate-email.controller';
 
 const { secret } = jwtConfig;
 
@@ -17,14 +17,14 @@ export const authRouter: FastifyPluginAsync<FastifyPluginOptions> = async (serve
       await checkAccessToken(secret, req.headers.authorization);
     });
 
-    server.route(validateEmailRoute);
+    server.route(validateEmailController);
   });
 
   server
-    .route(refreshTokensRoute)
-    .route(signUpRoute)
-    .route(forgotEmailRoute)
-    .route(codeEmailRoute)
-    .route(newPasswordRoute)
-    .route(signInRoute);
+    .route(refreshTokensController)
+    .route(signUpController)
+    .route(forgotEmailController)
+    .route(codeEmailController)
+    .route(newPasswordController)
+    .route(signInController);
 };

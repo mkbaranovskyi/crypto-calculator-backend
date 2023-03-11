@@ -5,10 +5,10 @@ import { EmailEnum } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { EmailService, VerificationCodeService } from '../../shared/services';
 import { LoggerInstance } from '../../shared/services/logger';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { ForgotEmailSchema, IForgotEmailBodyInput } from './schemas';
 
-export const forgotEmailRoute: RouteCustomOptions<{ Body: IForgotEmailBodyInput }> = {
+export const forgotEmailController: ControllerOptions<{ Body: IForgotEmailBodyInput }> = {
   url: '/email/forgot',
   method: 'POST',
   schema: ForgotEmailSchema,

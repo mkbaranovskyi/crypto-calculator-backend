@@ -2,11 +2,13 @@ import fetch from 'node-fetch';
 import { ICoinsMarketsResponse } from '../../shared/coin-gecko';
 import { coinGeckoConfig } from '../../shared/configs';
 import { CoinListEntity } from '../../shared/database';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { statusOutputSuccess } from '../../shared/view-models';
 import { IUpdateCoinListQueryInput, UpdateCoinListSchema } from './schemas';
 
-export const updateCoinListRoute: RouteCustomOptions<{ Querystring: IUpdateCoinListQueryInput }> = {
+export const updateCoinListController: ControllerOptions<{
+  Querystring: IUpdateCoinListQueryInput;
+}> = {
   url: '/coin-list/update',
   method: 'POST',
   schema: UpdateCoinListSchema,

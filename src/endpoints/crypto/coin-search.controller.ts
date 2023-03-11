@@ -1,11 +1,11 @@
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
 import { CryptoService, LocalStorage } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { CoinSearchSchema, ICoinSearchBodyInput } from './schemas';
 import { infoSelectedKeys } from './types';
 
-export const coinSearchRoute: RouteCustomOptions<{ Body: ICoinSearchBodyInput }> = {
+export const coinSearchController: ControllerOptions<{ Body: ICoinSearchBodyInput }> = {
   url: '/coin-search',
   method: 'POST',
   schema: CoinSearchSchema,

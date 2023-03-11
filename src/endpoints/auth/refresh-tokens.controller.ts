@@ -4,12 +4,12 @@ import { UserEntity } from '../../shared/database';
 import { UserStateEnum } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { JWTService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { checkAuthSchema, ICheckAuthBodySchema as ICheckAuthBodyInput } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const refreshTokensRoute: RouteCustomOptions<{ Body: ICheckAuthBodyInput }> = {
+export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyInput }> = {
   url: '/refresh-tokens',
   method: 'POST',
   schema: checkAuthSchema,

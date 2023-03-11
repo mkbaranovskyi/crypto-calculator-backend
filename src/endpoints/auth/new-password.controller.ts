@@ -5,12 +5,12 @@ import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { UserStateEnum } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService, VerificationCodeService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { INewPasswordBodyInput, newPasswordSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput }> = {
+export const newPasswordController: ControllerOptions<{ Body: INewPasswordBodyInput }> = {
   url: '/email/new-password',
   method: 'POST',
   schema: newPasswordSchema,

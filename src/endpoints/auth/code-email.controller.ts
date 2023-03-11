@@ -1,11 +1,11 @@
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { UnauthorizedException } from '../../shared/errors';
 import { VerificationCodeService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { statusOutputSuccess } from '../../shared/view-models';
 import { CodeEmailSchema, ICodeEmailBodyInput } from './schemas';
 
-export const codeEmailRoute: RouteCustomOptions<{ Body: ICodeEmailBodyInput }> = {
+export const codeEmailController: ControllerOptions<{ Body: ICodeEmailBodyInput }> = {
   url: '/email/code',
   method: 'POST',
   schema: CodeEmailSchema,

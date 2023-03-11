@@ -1,13 +1,11 @@
-import { DateTime } from 'luxon';
-import { MAX_NUMBER_OF_COINS_TO_INVEST, MIN_COIN_DATE } from '../../shared/consts';
+import { MAX_NUMBER_OF_COINS_TO_INVEST } from '../../shared/consts';
 import { CryptoDataEntity } from '../../shared/database';
-import { BadRequestException } from '../../shared/errors';
 import { LocalStorage } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { validateCoinListInput } from './error-handlers';
 import { CoinListSchema, ICoinListBodyInput } from './schemas';
 
-export const coinListRoute: RouteCustomOptions<{ Body: ICoinListBodyInput }> = {
+export const coinListController: ControllerOptions<{ Body: ICoinListBodyInput }> = {
   url: '/coin-list',
   method: 'POST',
   schema: CoinListSchema,

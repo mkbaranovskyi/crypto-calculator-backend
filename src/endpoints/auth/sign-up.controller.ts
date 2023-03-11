@@ -11,12 +11,12 @@ import {
   VerificationCodeService,
 } from '../../shared/services';
 import { LoggerInstance } from '../../shared/services/logger';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { ISignUpBodyInput, signUpSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signUpRoute: RouteCustomOptions<{ Body: ISignUpBodyInput }> = {
+export const signUpController: ControllerOptions<{ Body: ISignUpBodyInput }> = {
   url: '/sign-up',
   method: 'POST',
   schema: signUpSchema,

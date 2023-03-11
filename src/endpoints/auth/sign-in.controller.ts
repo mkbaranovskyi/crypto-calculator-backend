@@ -4,12 +4,12 @@ import { UserEntity } from '../../shared/database';
 import { UserStateEnum } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { ISignInBodyInput, signInSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signInRoute: RouteCustomOptions<{ Body: ISignInBodyInput }> = {
+export const signInController: ControllerOptions<{ Body: ISignInBodyInput }> = {
   url: '/sign-in',
   method: 'POST',
   schema: signInSchema,
