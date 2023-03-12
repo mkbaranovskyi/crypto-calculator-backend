@@ -2,8 +2,8 @@ import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
 import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { EMAIL, USER_STATE } from '../../shared/enums';
-import { BadRequestException } from '../../shared/errors';
+import { EMAIL_TYPE, USER_STATE } from '../../shared/enums';
+import { BadRequestException, InternalServerError } from '../../shared/errors';
 import {
   EmailService,
   HashingService,
@@ -57,9 +57,10 @@ export const signUpController: ControllerOptions<{ Body: ISignUpBodyInput }> = {
     }).save();
 
     try {
-      await EmailService.sendMessageToEmail(email, code, EMAIL.REGISTRATION_LETTER);
+      await EmailService.sendMessageToEmail(email, code, EMAIL_TYPE.REGISTRATION_LETTER);
     } catch (err) {
       LoggerInstance.error('Send message to email error.');
+      new InternalServerError(err);
     }
 
     return {

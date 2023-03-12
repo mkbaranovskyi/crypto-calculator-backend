@@ -8,7 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2022",
     "outDir": "./lib",
-    "baseUrl": "./",
+    "rootDir": "./src",
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,

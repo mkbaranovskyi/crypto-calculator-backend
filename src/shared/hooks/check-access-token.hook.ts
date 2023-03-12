@@ -10,14 +10,13 @@ export const checkAccessToken = async (jwtSecret: string, token?: string): Promi
 
   const cleanedUpCode = token.replace('Bearer ', '');
 
-  const tokensData = await JWTService.decodeToken(cleanedUpCode, jwtSecret);
+  const tokenPayload = await JWTService.decodeToken(cleanedUpCode, jwtSecret);
 
-  if (!tokensData) {
-    LoggerInstance.info('Invalid session key in access token.');
-    throw new BadRequestException('Invalid access token.');
+  if (!tokenPayload) {
+    throw BadRequestException('Invalid access token.');
   }
 
-  const user = await UserEntity.findOneBy({ sessionKey: tokensData.sessionKey });
+  const user = await UserEntity.findOneBy({ sessionKey: tokenPayload.sessionKey });
 
   if (!user) {
     LoggerInstance.info('User does not have a session key.');

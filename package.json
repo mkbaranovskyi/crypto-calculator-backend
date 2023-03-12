@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "tsc-watch -p tsconfig.json --onSuccess 'node --inspect=0.0.0.0:9229 ./lib'",
+    "debug": "tsc-watch -p tsconfig.json --onSuccess 'node --inspect=0.0.0.0:9229 ./lib'",
     "prod": "node lib/index"
   },
   "keywords": [],
@@ -31,7 +31,7 @@
     "dotenv": "^16.0.3",
     "fastify": "^4.2.1",
     "handlebars": "^4.7.7",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "luxon": "^3.0.1",
     "mongodb": "^3.6.0",
     "node-fetch": "^2.6.8",

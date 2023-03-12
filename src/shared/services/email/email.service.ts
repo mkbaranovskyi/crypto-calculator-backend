@@ -4,7 +4,7 @@ import { createTransport } from 'nodemailer';
 import { MailOptions } from 'nodemailer/lib/sendmail-transport';
 import path from 'path';
 import { smtpConfig } from '../../configs/index';
-import { EMAIL } from '../../enums';
+import { EMAIL_TYPE } from '../../enums';
 
 const transporter = createTransport({
   host: smtpConfig.host,
@@ -45,15 +45,15 @@ const getEmailHTML = async <T extends object>(templateContext: T): Promise<strin
 export const sendMessageToEmail = async (
   toEmail: string,
   code: string,
-  type: EMAIL
+  type: EMAIL_TYPE
 ): Promise<void> => {
   let actionTypeTitle = '';
 
   switch (type) {
-    case EMAIL.REGISTRATION_LETTER:
+    case EMAIL_TYPE.REGISTRATION_LETTER:
       actionTypeTitle = 'registration';
       break;
-    case EMAIL.RECOVERY_LETTER:
+    case EMAIL_TYPE.RECOVERY_LETTER:
       actionTypeTitle = 'recovery';
       break;
   }
