@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { UserStateEnum } from '../../enums';
+import { USER_STATE } from '../../enums';
 import { Base } from './base.entity';
 
 @Entity('user')
@@ -17,5 +17,5 @@ export class UserEntity extends Base {
   sessionKey!: string;
 
   @Column()
-  state?: UserStateEnum = UserStateEnum.NOT_VERIFIED;
+  state?: USER_STATE = USER_STATE.NOT_VERIFIED;
 }

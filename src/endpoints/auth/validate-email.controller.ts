@@ -1,12 +1,13 @@
+import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { UserStateEnum } from '../../shared/enums';
+import { USER_STATE } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { LocalStorage, VerificationCodeService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { statusOutputSuccess } from '../../shared/view-models';
-import { IValidateEmailBodySchema, validateEmailSchema } from './schemas/validate-email.schema';
+import { IValidateEmailBodyInput, validateEmailSchema } from './schemas';
 
-export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodySchema }> = {
+export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBodyInput }> = {
   url: '/email/validate',
   method: 'POST',
   schema: validateEmailSchema,
@@ -22,7 +23,9 @@ export const validateEmailRoute: RouteCustomOptions<{ Body: IValidateEmailBodySc
       throw new UnauthorizedException(err.message);
     }
 
-    await UserEntity.update(user._id, { state: UserStateEnum.VERIFIED });
+    reply.setCookie(USER_STATE_COOKIE, USER_STATE.VERIFIED);
+
+    await UserEntity.update(user._id, { state: USER_STATE.VERIFIED });
 
     return statusOutputSuccess;
   },

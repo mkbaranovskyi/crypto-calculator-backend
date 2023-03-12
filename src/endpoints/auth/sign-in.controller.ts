@@ -1,16 +1,18 @@
 import { jwtConfig } from '../../shared/configs';
+import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity } from '../../shared/database';
+import { USER_STATE } from '../../shared/enums';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
-import { ISignUpOrInBodyInput, signUpOrInSchema } from './schemas';
+import { ControllerOptions } from '../../shared/types';
+import { ISignInBodyInput, signInSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signInRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
+export const signInController: ControllerOptions<{ Body: ISignInBodyInput }> = {
   url: '/sign-in',
   method: 'POST',
-  schema: signUpOrInSchema,
+  schema: signInSchema,
   handler: async (req, reply) => {
     const { email, password: inputPassword } = req.body;
 
@@ -26,6 +28,8 @@ export const signInRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
     if (inputPasswordHash !== passwordHash) {
       throw new UnauthorizedException('Wrong email or password.');
     }
+
+    reply.setCookie(USER_STATE_COOKIE, user.state || USER_STATE.NOT_VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

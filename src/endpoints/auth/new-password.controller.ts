@@ -1,14 +1,16 @@
 import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
+import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
+import { USER_STATE } from '../../shared/enums';
 import { UnauthorizedException } from '../../shared/errors';
 import { HashingService, JWTService, VerificationCodeService } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
+import { ControllerOptions } from '../../shared/types';
 import { INewPasswordBodyInput, newPasswordSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput }> = {
+export const newPasswordController: ControllerOptions<{ Body: INewPasswordBodyInput }> = {
   url: '/email/new-password',
   method: 'POST',
   schema: newPasswordSchema,
@@ -40,6 +42,8 @@ export const newPasswordRoute: RouteCustomOptions<{ Body: INewPasswordBodyInput 
     });
 
     await VerificationCodeEntity.delete({ userId: String(user._id) });
+
+    reply.setCookie(USER_STATE_COOKIE, USER_STATE.VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

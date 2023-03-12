@@ -1,6 +1,4 @@
-import { statusOutputSchema } from '../../../shared/models';
-
-export interface IForgotEmailBodySchema {
+export interface IForgotEmailBodyInput {
   email: string;
 }
 
@@ -13,6 +11,12 @@ export const ForgotEmailSchema = {
     required: ['email'],
   },
   response: {
-    200: statusOutputSchema,
+    200: {
+      type: 'object',
+      properties: {
+        emailCodeExpiresIn: { type: 'number', format: 'integer', example: 1638904355716 },
+      },
+      required: ['emailCodeExpiresIn'],
+    },
   },
 };

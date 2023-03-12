@@ -1,14 +1,10 @@
+import fs from 'fs';
+import handlebars from 'handlebars';
 import { createTransport } from 'nodemailer';
+import { MailOptions } from 'nodemailer/lib/sendmail-transport';
+import path from 'path';
 import { smtpConfig } from '../../configs/index';
-import { EmailEnum } from '../../enums';
-import { BadGatewayException, InternalServerError } from '../../errors';
-
-interface ISendData {
-  from: string;
-  to: string;
-  subject: string;
-  html: string;
-}
+import { EMAIL_TYPE } from '../../enums';
 
 const transporter = createTransport({
   host: smtpConfig.host,
@@ -20,35 +16,56 @@ const transporter = createTransport({
   },
 });
 
+const getStringFile = async (): Promise<string> => {
+  const filePath = path.resolve(process.cwd(), 'html/email-index.html');
+
+  const stringFile = await new Promise<string>((res) => {
+    fs.readFile(filePath, async (err, data) => {
+      if (err) {
+        throw err;
+      }
+
+      res(data.toString());
+    });
+  });
+
+  return stringFile;
+};
+
+const stringFile = getStringFile();
+
+const getEmailHTML = async <T extends object>(templateContext: T): Promise<string> => {
+  const handlebarFileString = await stringFile;
+
+  const template = handlebars.compile(handlebarFileString);
+
+  return template(templateContext);
+};
+
 export const sendMessageToEmail = async (
   toEmail: string,
   code: string,
-  type: string
+  type: EMAIL_TYPE
 ): Promise<void> => {
-  const sendData: ISendData = {
-    from: `Kravich13 <${smtpConfig.user}>`,
-    to: `<${toEmail}>`,
-    subject: '',
-    html: '',
-  };
+  let actionTypeTitle = '';
 
   switch (type) {
-    case EmailEnum.REGISTRATION_LETTER:
-      sendData.subject = 'Crypto-Financial-Calculator: регистрация аккаунта';
-      sendData.html = `<h3>Ваш код активации аккаунта:</h3>\n<h2>${code}</h2>`;
+    case EMAIL_TYPE.REGISTRATION_LETTER:
+      actionTypeTitle = 'registration';
       break;
-    case EmailEnum.RECOVERY_LETTER:
-      sendData.subject = 'Crypto-Financial-Calculator: восстановление аккаунта';
-      sendData.html = `<h3>Ваш код восстановления аккаунта:</h3>\n<h2>${code}</h2>`;
+    case EMAIL_TYPE.RECOVERY_LETTER:
+      actionTypeTitle = 'recovery';
       break;
-    default:
-      throw new InternalServerError('Server error while sending email.');
   }
 
-  try {
-    await transporter.sendMail(sendData);
-  } catch (err) {
-    console.log(err);
-    throw new BadGatewayException('Bad gateway');
-  }
+  const html = await getEmailHTML({ activateType: actionTypeTitle, code });
+
+  const mailOptions: MailOptions = {
+    from: `<${smtpConfig.user}>`,
+    to: `<${toEmail}>`,
+    subject: `Crypto Financial Calculator: account ${actionTypeTitle}`,
+    html,
+  };
+
+  await transporter.sendMail(mailOptions);
 };

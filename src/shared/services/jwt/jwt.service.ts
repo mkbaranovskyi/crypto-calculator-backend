@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { DateTime } from 'luxon';
+import { IJWTData } from '../../types';
 import { LoggerInstance } from '../logger';
 import { IGenerateTokensInput } from './inputs';
 import { IGenerateTokensOutput } from './outputs';
@@ -46,19 +47,18 @@ export const generateTokens = async ({
   return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
 };
 
-export const decodeToken = async (token: string, jwtSecret: string): Promise<string | null> => {
+export const decodeToken = async (token: string, jwtSecret: string): Promise<IJWTData | null> => {
   let result = null;
 
   try {
-    result = await new Promise<jwt.JwtPayload>((res, rej) => {
-      jwt.verify(token, jwtSecret, (err, decoded: any) => {
+    result = await new Promise<IJWTData>((res, rej) => {
+      jwt.verify(token, jwtSecret, (err, decoded) => {
         if (err) {
           throw err;
-        } else if (!decoded || !decoded.sessionKey) {
+        } else if (!decoded || !(decoded as IJWTData).sessionKey) {
           LoggerInstance.info('Token decoding error.');
-          throw new Error('Error while decorating token.');
         } else {
-          res(decoded);
+          res(decoded as IJWTData);
         }
       });
     });
@@ -66,5 +66,5 @@ export const decodeToken = async (token: string, jwtSecret: string): Promise<str
     return null;
   }
 
-  return result.sessionKey;
+  return result;
 };

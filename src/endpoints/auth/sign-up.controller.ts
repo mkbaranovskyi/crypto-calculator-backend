@@ -1,23 +1,25 @@
 import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
+import { USER_STATE_COOKIE } from '../../shared/consts';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { EmailEnum } from '../../shared/enums';
-import { BadRequestException } from '../../shared/errors';
+import { EMAIL_TYPE, USER_STATE } from '../../shared/enums';
+import { BadRequestException, InternalServerError } from '../../shared/errors';
 import {
   EmailService,
   HashingService,
   JWTService,
   VerificationCodeService,
 } from '../../shared/services';
-import { RouteCustomOptions } from '../../shared/types';
-import { ISignUpOrInBodyInput, signUpOrInSchema } from './schemas';
+import { LoggerInstance } from '../../shared/services/logger';
+import { ControllerOptions } from '../../shared/types';
+import { ISignUpBodyInput, signUpSchema } from './schemas';
 
 const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
-export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
+export const signUpController: ControllerOptions<{ Body: ISignUpBodyInput }> = {
   url: '/sign-up',
   method: 'POST',
-  schema: signUpOrInSchema,
+  schema: signUpSchema,
   handler: async (req, reply) => {
     const { email, password } = req.body;
 
@@ -31,6 +33,8 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
     const salt = randomUUID();
     const passwordHash = HashingService.createHash(password, sessionKey);
     const dataUser = UserEntity.create({ email, passwordHash });
+
+    reply.setCookie(USER_STATE_COOKIE, USER_STATE.NOT_VERIFIED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
@@ -48,17 +52,23 @@ export const signUpRoute: RouteCustomOptions<{ Body: ISignUpOrInBodyInput }> = {
 
     await VerificationCodeEntity.create({
       userId: String(dataUser._id),
-      code: '123456',
+      code,
       expiresAt,
     }).save();
 
-    await EmailService.sendMessageToEmail(email, code, EmailEnum.REGISTRATION_LETTER);
+    try {
+      await EmailService.sendMessageToEmail(email, code, EMAIL_TYPE.REGISTRATION_LETTER);
+    } catch (err) {
+      LoggerInstance.error('Send message to email error.');
+      new InternalServerError(err);
+    }
 
     return {
       accessToken,
       refreshToken,
       accessTokenExpiresIn,
       refreshTokenExpiresIn,
+      emailCodeExpiresIn: expiresAt,
     };
   },
 };
