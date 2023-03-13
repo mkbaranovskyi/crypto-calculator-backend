@@ -7,7 +7,6 @@ docker/
 .env
 package-lock.json
 tsconfig.tsbuildinfo
-.vscode
 
 # testing
 /coverage
