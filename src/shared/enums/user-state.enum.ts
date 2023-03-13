@@ -1,4 +1,4 @@
 export enum USER_STATE {
-  NOT_VERIFIED = 'not-verified',
-  VERIFIED = 'verified',
+  NOT_ACTIVATED = 'not-activated',
+  ACTIVATED = 'activated',
 }

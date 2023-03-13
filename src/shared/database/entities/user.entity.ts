@@ -17,5 +17,5 @@ export class UserEntity extends Base {
   sessionKey!: string;
 
   @Column()
-  state?: USER_STATE = USER_STATE.NOT_VERIFIED;
+  state?: USER_STATE = USER_STATE.NOT_ACTIVATED;
 }

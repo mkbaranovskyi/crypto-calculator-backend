@@ -28,7 +28,7 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
       throw UnauthorizedException('Invalid refresh token.');
     }
 
-    reply.setCookie(USER_STATE_COOKIE, user.state || USER_STATE.NOT_VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, user.state || USER_STATE.NOT_ACTIVATED);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({

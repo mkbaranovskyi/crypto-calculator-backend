@@ -1,13 +1,12 @@
-import { jwtBodySchema, signInOrUpBodySchema } from '../../../shared/models';
+import { signInOrUpBodySchema, signInOrUpOutputSchema } from '../../../shared/models';
 
 export interface ISignInBodyInput {
   email: string;
-  password: string;
 }
 
 export const signInSchema = {
   body: signInOrUpBodySchema,
   response: {
-    200: jwtBodySchema,
+    200: signInOrUpOutputSchema,
   },
 };

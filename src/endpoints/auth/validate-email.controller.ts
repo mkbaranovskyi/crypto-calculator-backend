@@ -23,9 +23,9 @@ export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBo
       throw new UnauthorizedException(err.message);
     }
 
-    reply.setCookie(USER_STATE_COOKIE, USER_STATE.VERIFIED);
+    reply.setCookie(USER_STATE_COOKIE, USER_STATE.ACTIVATED);
 
-    await UserEntity.update(user._id, { state: USER_STATE.VERIFIED });
+    await UserEntity.update(user._id, { state: USER_STATE.ACTIVATED });
 
     return statusOutputSuccess;
   },

@@ -8,7 +8,6 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2022",
     "outDir": "./lib",
-    "rootDir": "./src",
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
@@ -20,5 +19,7 @@
     "sourceMap": true /* Create source map files for emitted JavaScript files. */,
     "declaration": true,
     "declarationMap": true
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["lib", "node_modules, ormconfig.js"]
 }
