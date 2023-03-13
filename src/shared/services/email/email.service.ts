@@ -4,7 +4,6 @@ import { createTransport } from 'nodemailer';
 import { MailOptions } from 'nodemailer/lib/sendmail-transport';
 import path from 'path';
 import { smtpConfig } from '../../configs/index';
-import { EMAIL_TYPE } from '../../enums';
 
 const transporter = createTransport({
   host: smtpConfig.host,
@@ -42,28 +41,13 @@ const getEmailHTML = async <T extends object>(templateContext: T): Promise<strin
   return template(templateContext);
 };
 
-export const sendMessageToEmail = async (
-  toEmail: string,
-  code: string,
-  type: EMAIL_TYPE
-): Promise<void> => {
-  let actionTypeTitle = '';
-
-  switch (type) {
-    case EMAIL_TYPE.REGISTRATION_LETTER:
-      actionTypeTitle = 'registration';
-      break;
-    case EMAIL_TYPE.RECOVERY_LETTER:
-      actionTypeTitle = 'recovery';
-      break;
-  }
-
-  const html = await getEmailHTML({ activateType: actionTypeTitle, code });
+export const sendSignInLetter = async (toEmail: string, code: string): Promise<void> => {
+  const html = await getEmailHTML({ code });
 
   const mailOptions: MailOptions = {
     from: `<${smtpConfig.user}>`,
     to: `<${toEmail}>`,
-    subject: `Crypto Financial Calculator: account ${actionTypeTitle}`,
+    subject: 'Crypto Financial Calculator: sign in',
     html,
   };
 

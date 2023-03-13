@@ -1,12 +1,22 @@
-import { signInOrUpBodySchema, signInOrUpOutputSchema } from '../../../shared/models';
-
 export interface ISignInBodyInput {
   email: string;
 }
 
 export const signInSchema = {
-  body: signInOrUpBodySchema,
+  body: {
+    type: 'object',
+    properties: {
+      email: { type: 'string', format: 'email' },
+    },
+    required: ['email'],
+  },
   response: {
-    200: signInOrUpOutputSchema,
+    200: {
+      type: 'object',
+      properties: {
+        emailCodeExpiresIn: { type: 'number' },
+      },
+      required: ['emailCodeExpiresIn'],
+    },
   },
 };

@@ -1,19 +1,25 @@
-import { USER_STATE_COOKIE } from '../../shared/consts';
+import { randomUUID } from 'crypto';
+import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
-import { USER_STATE } from '../../shared/enums';
-import { UnauthorizedException } from '../../shared/errors';
-import { LocalStorage, VerificationCodeService } from '../../shared/services';
+import { BadRequestException, UnauthorizedException } from '../../shared/errors';
+import { JWTService, VerificationCodeService } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
-import { statusOutputSuccess } from '../../shared/view-models';
 import { IValidateEmailBodyInput, validateEmailSchema } from './schemas';
+
+const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
 export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBodyInput }> = {
   url: '/email/validate',
   method: 'POST',
   schema: validateEmailSchema,
   handler: async (req, reply) => {
-    const { code: receivedCode } = req.body;
-    const user = LocalStorage.getUser();
+    const { code: receivedCode, email } = req.body;
+
+    const user = await UserEntity.findOneBy({ email });
+
+    if (!user) {
+      throw new BadRequestException('User does not exist.');
+    }
 
     const savedCode = await VerificationCodeEntity.findOneBy({ userId: String(user._id) });
 
@@ -23,10 +29,23 @@ export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBo
       throw new UnauthorizedException(err.message);
     }
 
-    reply.setCookie(USER_STATE_COOKIE, USER_STATE.ACTIVATED);
+    const sessionKey = randomUUID();
 
-    await UserEntity.update(user._id, { state: USER_STATE.ACTIVATED });
+    await UserEntity.update(user._id, { sessionKey });
 
-    return statusOutputSuccess;
+    const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
+      await JWTService.generateTokens({
+        sessionKey,
+        jwtSecret: secret,
+        accessDeathDate,
+        refreshDeathDate,
+      });
+
+    return {
+      accessToken,
+      refreshToken,
+      accessTokenExpiresIn,
+      refreshTokenExpiresIn,
+    };
   },
 };
