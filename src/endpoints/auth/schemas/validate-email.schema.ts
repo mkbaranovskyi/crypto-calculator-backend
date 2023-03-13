@@ -1,6 +1,7 @@
-import { authorizationHeaderSchema, statusOutputSchema } from '../../../shared/models';
+import { jwtBodySchema } from '../../../shared/models';
 
 export interface IValidateEmailBodyInput {
+  email: string;
   code: string;
 }
 
@@ -9,11 +10,11 @@ export const validateEmailSchema = {
     type: 'object',
     properties: {
       code: { type: 'string', minLength: 6, maxLength: 6 },
+      email: { type: 'string', format: 'email' },
     },
-    required: ['code'],
+    required: ['code', 'email'],
   },
-  headers: authorizationHeaderSchema,
   response: {
-    200: statusOutputSchema,
+    200: jwtBodySchema,
   },
 };

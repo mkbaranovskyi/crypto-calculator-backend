@@ -1,49 +1,54 @@
-import { jwtConfig } from '../../shared/configs';
-import { USER_STATE_COOKIE } from '../../shared/consts';
-import { UserEntity } from '../../shared/database';
-import { USER_STATE } from '../../shared/enums';
-import { BadRequestException, UnauthorizedException } from '../../shared/errors';
-import { HashingService, JWTService } from '../../shared/services';
+import { DateTime } from 'luxon';
+import { emailConfig } from '../../shared/configs';
+import { UserEntity, VerificationCodeEntity } from '../../shared/database';
+import { BadRequestException, InternalServerError } from '../../shared/errors';
+import { EmailService, VerificationCodeService } from '../../shared/services';
+import { LoggerInstance } from '../../shared/services/logger';
 import { ControllerOptions } from '../../shared/types';
 import { ISignInBodyInput, signInSchema } from './schemas';
-
-const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
 
 export const signInController: ControllerOptions<{ Body: ISignInBodyInput }> = {
   url: '/sign-in',
   method: 'POST',
   schema: signInSchema,
   handler: async (req, reply) => {
-    const { email, password: inputPassword } = req.body;
+    const { email } = req.body;
 
-    const user = await UserEntity.findOneBy({ email });
+    let user = await UserEntity.findOneBy({ email });
 
     if (!user) {
-      throw new BadRequestException('User does not exist.');
+      user = await UserEntity.create({ email }).save();
     }
 
-    const { passwordHash, sessionKey } = user;
-    const inputPasswordHash = HashingService.createHash(inputPassword, sessionKey);
+    const userId = String(user._id);
+    const savedCode = await VerificationCodeEntity.findOneBy({ userId });
 
-    if (inputPasswordHash !== passwordHash) {
-      throw new UnauthorizedException('Wrong email or password.');
-    }
-
-    reply.setCookie(USER_STATE_COOKIE, user.state || USER_STATE.NOT_VERIFIED);
-
-    const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
-      await JWTService.generateTokens({
-        sessionKey,
-        jwtSecret: secret,
-        accessDeathDate,
-        refreshDeathDate,
+    if (savedCode) {
+      const currentDate = DateTime.utc();
+      const codeExpiresAt = DateTime.fromJSDate(savedCode.createdAt).plus({
+        seconds: emailConfig.expiresIn,
       });
 
+      if (+currentDate < +codeExpiresAt) {
+        throw new BadRequestException('Wait before you can request another code.');
+      }
+
+      await VerificationCodeEntity.delete({ userId });
+    }
+
+    const { code, expiresAt } = VerificationCodeService.createCode();
+
+    await VerificationCodeEntity.create({ userId, code, expiresAt }).save();
+
+    try {
+      await EmailService.sendSignInLetter(email, code);
+    } catch (err) {
+      LoggerInstance.error('Send message to email error.');
+      new InternalServerError(err);
+    }
+
     return {
-      accessToken,
-      refreshToken,
-      accessTokenExpiresIn,
-      refreshTokenExpiresIn,
+      emailCodeExpiresIn: DateTime.fromJSDate(expiresAt).toMillis(),
     };
   },
 };
