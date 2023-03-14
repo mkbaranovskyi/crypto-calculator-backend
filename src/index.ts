@@ -7,7 +7,7 @@ import { connectToDB } from './shared/database';
 import { registerGlobal } from './shared/error-handler';
 import { registerFastifyCookie } from './shared/plugins/cookie';
 import { registerFastifySwagger } from './shared/plugins/swagger';
-import { LoggerInstance } from './shared/services/logger';
+import { LoggerInstance } from './shared/services';
 
 const ajv = new Ajv({
   strict: true,

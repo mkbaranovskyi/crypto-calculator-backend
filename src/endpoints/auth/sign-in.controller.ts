@@ -2,8 +2,7 @@ import { DateTime } from 'luxon';
 import { emailConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { BadRequestException, InternalServerError } from '../../shared/errors';
-import { EmailService, VerificationCodeService } from '../../shared/services';
-import { LoggerInstance } from '../../shared/services/logger';
+import { EmailService, LoggerInstance, VerificationCodeService } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
 import { ISignInBodyInput, signInSchema } from './schemas';
 

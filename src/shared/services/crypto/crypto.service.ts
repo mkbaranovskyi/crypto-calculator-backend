@@ -4,6 +4,7 @@ import { ICoinsMarketChartRangeResponse } from '../../coin-gecko';
 import { coinGeckoConfig } from '../../configs';
 import { INVEST_DAY_OF_MONTH } from '../../consts';
 import { AvialableCoinsType } from '../../types';
+import { LoggerInstance } from '../logger';
 import {
   GetTotalCapitalInput,
   IGetCoinPricesInput,
@@ -43,6 +44,8 @@ export const getCoinPrices = async ({
   );
 
   const data: ICoinsMarketChartRangeResponse = await res.json();
+
+  LoggerInstance.info(`${coinId} prices length: ${data.prices.length}.`);
 
   const resultPrices: number[] = [];
 
@@ -93,6 +96,10 @@ export const getMainCoinsData = ({
 
     const mainCoinData = mainCoinsInfo.find(({ coinId: mainCoinId }) => mainCoinId === coinId)!;
     const coinShareData = coinsShares.find(({ coinId: coinShareId }) => coinShareId === coinId)!;
+
+    LoggerInstance.info(
+      `${coinId}: share: ${coinShareData.share}; prices: ${coinPrices[coinId].length}.`
+    );
 
     return { ...mainCoinData, prices: coinPrices[coinId], share: coinShareData.share };
   });

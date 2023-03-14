@@ -54,9 +54,10 @@ export const decodeToken = async (token: string, jwtSecret: string): Promise<IJW
     result = await new Promise<IJWTData>((res, rej) => {
       jwt.verify(token, jwtSecret, (err, decoded) => {
         if (err) {
+          LoggerInstance.error('Token decoding error.');
           throw err;
         } else if (!decoded || !(decoded as IJWTData).sessionKey) {
-          LoggerInstance.info('Token decoding error.');
+          LoggerInstance.error('Decoded token not found.');
         } else {
           res(decoded as IJWTData);
         }

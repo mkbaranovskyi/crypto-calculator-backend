@@ -1,6 +1,6 @@
 import { CoinListEntity, CryptoDataEntity } from '../../shared/database';
 import { BadRequestException } from '../../shared/errors';
-import { CryptoService, LocalStorage } from '../../shared/services';
+import { CryptoService, LocalStorage, LoggerInstance } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
 import { CoinSearchSchema, ICoinSearchBodyInput } from './schemas';
 import { infoSelectedKeys } from './types';
@@ -17,6 +17,7 @@ export const coinSearchController: ControllerOptions<{ Body: ICoinSearchBodyInpu
     const cryptoData = await CryptoDataEntity.findOneBy({ userId: String(user._id) });
 
     if (!cryptoData) {
+      LoggerInstance.error('User cryptoData not found');
       throw new BadRequestException('Missing internal data for request.');
     }
 
