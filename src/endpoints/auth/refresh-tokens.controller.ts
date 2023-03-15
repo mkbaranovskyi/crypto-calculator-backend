@@ -14,7 +14,7 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
   handler: async (req, reply) => {
     const { refreshToken: inputRefreshToken } = req.body;
 
-    const tokenPayload = await JWTService.decodeToken(secret, inputRefreshToken);
+    const tokenPayload = await JWTService.decodeToken(inputRefreshToken, secret);
 
     if (!tokenPayload) {
       throw UnauthorizedException('Invalid refresh token.');
