@@ -42,7 +42,7 @@ const getEmailHTML = async <T extends object>(templateContext: T): Promise<strin
 };
 
 export const sendSignInLetter = async (toEmail: string, code: string): Promise<void> => {
-  const html = await getEmailHTML({ code });
+  const html = await getEmailHTML({ code, email: toEmail });
 
   const mailOptions: MailOptions = {
     from: `<${smtpConfig.user}>`,
