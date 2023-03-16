@@ -19,7 +19,7 @@ export const checkAccessToken = async (jwtSecret: string, token?: string): Promi
 
   if (!user) {
     LoggerInstance.error('User does not have a session key.');
-    throw new UnauthorizedException(401, 'Invalid access token.');
+    throw new UnauthorizedException('Invalid access token.');
   }
 
   LocalStorage.setUser(user);
