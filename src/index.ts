@@ -27,7 +27,7 @@ const start = async () => {
   registerFastifySwagger(server);
   registerFastifyCookie(server);
   await connectToDB();
-  await server.register(cors);
+  await server.register(cors, { credentials: true, origin: true });
   await server.register(endpointRouter);
   await server.listen({ port: PORT, host: '0.0.0.0' });
 };
