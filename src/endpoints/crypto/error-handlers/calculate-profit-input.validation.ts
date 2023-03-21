@@ -1,4 +1,4 @@
-import { MAX_NUMBER_OF_COINS_TO_INVEST } from '../../../shared/consts';
+import { MAX_NUMBER_OF_COINS_TO_INVEST, MIN_DISTRIBUTION_OF_SHARE } from '../../../shared/consts';
 import { CoinListEntity, CryptoDataEntity } from '../../../shared/database';
 import { BadRequestException, InternalServerError } from '../../../shared/errors';
 import { LocalStorage } from '../../../shared/services';
@@ -48,10 +48,9 @@ export const validateCalculateProfitInput = async (selectedCoins: CalculateProfi
     throw new BadRequestException('Non-existent coins indicated.');
   }
 
-  const minDistributionOfShare = Number((100 / coinsShares.length).toFixed(1));
   const totalShare = coinsShares.reduce((prev, current) => prev + current, 0);
   const isIncorrectDistributionOfShares = coinsShares.some(
-    (share) => share < minDistributionOfShare
+    (share) => share < MIN_DISTRIBUTION_OF_SHARE
   );
 
   if (totalShare < 99.8 || totalShare > 100.2 || isIncorrectDistributionOfShares) {
