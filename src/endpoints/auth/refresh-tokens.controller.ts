@@ -1,7 +1,7 @@
 import { jwtConfig } from '../../shared/configs';
 import { UserEntity } from '../../shared/database';
 import { UnauthorizedException } from '../../shared/errors';
-import { JWTService } from '../../shared/services';
+import { JWTService, LoggerInstance } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
 import { checkAuthSchema, ICheckAuthBodySchema as ICheckAuthBodyInput } from './schemas';
 
@@ -14,7 +14,7 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
   handler: async (req, reply) => {
     const { refreshToken: inputRefreshToken } = req.body;
 
-    const tokenPayload = await JWTService.decodeToken(secret, inputRefreshToken);
+    const tokenPayload = await JWTService.decodeToken(inputRefreshToken, secret);
 
     if (!tokenPayload) {
       throw UnauthorizedException('Invalid refresh token.');
@@ -23,6 +23,7 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
     const user = await UserEntity.findOneBy({ sessionKey: tokenPayload.sessionKey });
 
     if (!user) {
+      LoggerInstance.error('User does not have a session key. ');
       throw UnauthorizedException('Invalid refresh token.');
     }
 

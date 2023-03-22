@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@fastify/cookie": "^8.3.0",
+    "@fastify/cors": "^8.2.1",
     "@fastify/error": "^3.0.0",
     "@fastify/swagger": "^7.4.1",
     "ajv": "^8.11.0",

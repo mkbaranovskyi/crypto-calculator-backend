@@ -2,7 +2,7 @@ import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
 import { UserEntity, VerificationCodeEntity } from '../../shared/database';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
-import { JWTService, VerificationCodeService } from '../../shared/services';
+import { JWTService, LoggerInstance, VerificationCodeService } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
 import { IValidateEmailBodyInput, validateEmailSchema } from './schemas';
 
@@ -26,6 +26,7 @@ export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBo
     try {
       VerificationCodeService.validateCode(savedCode, receivedCode);
     } catch (err: any) {
+      LoggerInstance.error('Verification code error.');
       throw new UnauthorizedException(err.message);
     }
 

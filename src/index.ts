@@ -7,7 +7,8 @@ import { connectToDB } from './shared/database';
 import { registerGlobal } from './shared/error-handler';
 import { registerFastifyCookie } from './shared/plugins/cookie';
 import { registerFastifySwagger } from './shared/plugins/swagger';
-import { LoggerInstance } from './shared/services/logger';
+import { LoggerInstance } from './shared/services';
+import cors from '@fastify/cors';
 
 const ajv = new Ajv({
   strict: true,
@@ -26,6 +27,7 @@ const start = async () => {
   registerFastifySwagger(server);
   registerFastifyCookie(server);
   await connectToDB();
+  await server.register(cors);
   await server.register(endpointRouter);
   await server.listen({ port: PORT, host: '0.0.0.0' });
 };

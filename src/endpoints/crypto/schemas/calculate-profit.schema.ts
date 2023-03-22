@@ -31,6 +31,7 @@ export const CalculateProfitSchema: FastifySchema = {
           symbol: { type: 'string' },
           name: { type: 'string' },
           startingPrice: { type: 'number' },
+          averagePrice: { type: 'number' },
           lastPrice: { type: 'number' },
           invested: { type: 'number' },
           capital: { type: 'number' },

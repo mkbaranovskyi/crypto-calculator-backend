@@ -16,14 +16,6 @@ export class CryptoDataEntity extends Base {
   monthlyInvestment!: number;
 
   @Column()
-  calculatedCoins!: {
-    coinId: string;
-    initialInvestment: number;
-    finalCapital: number;
-    growth: number;
-  }[];
-
-  @Column()
   totalProfit!: number;
 
   @Column()

@@ -16,6 +16,7 @@ export interface ICoinMainData extends ICoinInfo {
 
 export interface ICoinProfitResult extends ICoinInfo {
   startingPrice: number;
+  averagePrice: number;
   lastPrice: number;
   invested: number;
   capital: number;

@@ -1,7 +1,6 @@
 import { UserEntity } from '../database';
 import { BadRequestException, UnauthorizedException } from '../errors';
-import { JWTService, LocalStorage } from '../services';
-import { LoggerInstance } from '../services/logger';
+import { JWTService, LocalStorage, LoggerInstance } from '../services';
 
 export const checkAccessToken = async (jwtSecret: string, token?: string): Promise<void> => {
   if (!token) {
@@ -19,8 +18,8 @@ export const checkAccessToken = async (jwtSecret: string, token?: string): Promi
   const user = await UserEntity.findOneBy({ sessionKey: tokenPayload.sessionKey });
 
   if (!user) {
-    LoggerInstance.info('User does not have a session key.');
-    throw new UnauthorizedException(401, 'Invalid access token.');
+    LoggerInstance.error('User does not have a session key.');
+    throw new UnauthorizedException('Invalid access token.');
   }
 
   LocalStorage.setUser(user);
