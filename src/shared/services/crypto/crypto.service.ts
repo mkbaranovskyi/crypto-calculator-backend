@@ -32,7 +32,7 @@ export const getInvestmentPeriod = (startDate: DateTime, endDate: DateTime) => {
   const { months } = startDate.diff(endDate, ['months', 'days']);
   const diffMonths = Math.abs(months);
 
-  const specifiedNumberOfMonths = isSameMonthAndYear(startDate, endDate) ? 1 : 2;
+  const specifiedNumberOfMonths = isSameMonthAndYear(startDate, endDate) ? 0 : 1;
 
   return specifiedNumberOfMonths + diffMonths;
 };
