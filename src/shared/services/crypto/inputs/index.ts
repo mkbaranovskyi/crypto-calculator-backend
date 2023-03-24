@@ -2,9 +2,10 @@ import { DateTime } from 'luxon';
 import {
   ICoinInfo,
   ICoinMainData,
-  ICoinPrices,
   ICoinProfitResult,
+  ICoinsCapitals,
   ICoinShareData,
+  ICoinsPrices,
 } from '../../../types';
 
 export interface IGetCoinPricesInput {
@@ -14,7 +15,7 @@ export interface IGetCoinPricesInput {
 }
 
 export interface IGetMainCoinsDataInput {
-  coinsPrices: ICoinPrices[];
+  coinsPrices: ICoinsPrices[];
   coinsShares: ICoinShareData[];
   mainCoinsInfo: ICoinInfo[];
 }
@@ -25,3 +26,9 @@ export interface IGetCoinsProfitInput {
 }
 
 export type GetTotalCapitalInput = ICoinProfitResult[];
+
+export interface IGetMonthlyCapitalsInput {
+  coinsCapitals: ICoinsCapitals;
+  startDate: DateTime;
+  endDate: DateTime;
+}
