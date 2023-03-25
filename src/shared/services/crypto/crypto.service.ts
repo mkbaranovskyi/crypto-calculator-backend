@@ -260,7 +260,10 @@ export const getMonthlyCapitals = ({
     }
   }
 
-  LoggerInstance.info(`First and last capital: ${totalCapitals.at(0)} and ${totalCapitals.at(-1)}`);
+  const firstCapital = totalCapitals.at(0)?.toFixed(0);
+  const lastCapital = totalCapitals.at(-1)?.toFixed(0);
+
+  LoggerInstance.info(`First and last capital: ${firstCapital} and ${lastCapital}`);
 
   return totalCapitals.map((capital, index, arr) => {
     let resultDate = 0;
