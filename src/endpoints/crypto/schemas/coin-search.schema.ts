@@ -19,10 +19,13 @@ export const CoinSearchSchema = {
     200: {
       type: 'array',
       items: {
-        coinId: { type: 'string' },
-        image: { type: 'string' },
-        symbol: { type: 'string' },
-        name: { type: 'string' },
+        type: 'object',
+        properties: {
+          coinId: { type: 'string' },
+          image: { type: 'string' },
+          symbol: { type: 'string' },
+          name: { type: 'string' },
+        },
       },
     },
   },

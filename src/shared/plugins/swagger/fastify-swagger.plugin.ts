@@ -1,15 +1,16 @@
-import { FastifyInstance } from 'fastify';
 import fastifySwagger, { SwaggerOptions } from '@fastify/swagger';
+import fastifySwaggerUi, { FastifySwaggerUiOptions } from '@fastify/swagger-ui';
+import { FastifyInstance } from 'fastify';
 
-export const registerFastifySwagger = (server: FastifyInstance) => {
-  server.register<SwaggerOptions>(fastifySwagger, {
-    exposeRoute: true,
-    routePrefix: '/docs',
-    openapi: {
+export const registerFastifySwagger = async (server: FastifyInstance) => {
+  await server.register<SwaggerOptions>(fastifySwagger, {
+    swagger: {
       info: {
         title: 'Crypto Financial Calculator',
         version: '0.0.1',
       },
+    },
+    openapi: {
       components: {
         securitySchemes: {
           bearerAuth: {
@@ -20,5 +21,15 @@ export const registerFastifySwagger = (server: FastifyInstance) => {
         },
       },
     },
+  });
+
+  await server.register<FastifySwaggerUiOptions>(fastifySwaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: {
+      docExpansion: 'full',
+      deepLinking: false,
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
   });
 };
