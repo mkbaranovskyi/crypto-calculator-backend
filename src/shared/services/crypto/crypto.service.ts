@@ -1,5 +1,4 @@
 import { DateTime } from 'luxon';
-import fetch from 'node-fetch';
 import { ICoinsMarketChartRangeResponse } from '../../coin-gecko';
 import { coinGeckoConfig } from '../../configs';
 import { INVEST_DAY_OF_MONTH } from '../../consts';
@@ -49,7 +48,7 @@ export const getCoinPrices = async ({
     `${coinGeckoConfig.url}/coins/${coinId}/market_chart/range?vs_currency=usd&from=${unixStartDate}&to=${unixEndDate}`
   );
 
-  const data: ICoinsMarketChartRangeResponse = await res.json();
+  const data = (await res.json()) as ICoinsMarketChartRangeResponse;
 
   LoggerInstance.info(`${coinId} prices length: ${data.prices.length}.`);
 

@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import { ICoinsMarketsResponse } from '../../shared/coin-gecko';
 import { coinGeckoConfig } from '../../shared/configs';
 import { CoinListEntity } from '../../shared/database';
@@ -19,7 +18,7 @@ export const updateCoinListController: ControllerOptions<{
       `${coinGeckoConfig.url}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${per_page}&page=${page}&sparkline=false`
     );
 
-    const data: ICoinsMarketsResponse[] = await res.json();
+    const data = (await res.json()) as ICoinsMarketsResponse[];
 
     for (const { id, name, symbol, image, atl_date } of data) {
       await CoinListEntity.create({

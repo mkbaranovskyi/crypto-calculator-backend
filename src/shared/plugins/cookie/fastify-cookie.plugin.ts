@@ -7,8 +7,8 @@ import { cookieConfig, jwtConfig } from '../../configs';
 const date = DateTime.utc();
 const expires = date.plus({ seconds: jwtConfig.refreshDeathDate }).toJSDate();
 
-export const registerFastifyCookie = (server: FastifyInstance) => {
-  server.register(cookie, {
+export const registerFastifyCookie = async (server: FastifyInstance) => {
+  await server.register(cookie, {
     secret: cookieConfig.secret,
     hook: 'preHandler',
     parseOptions: {

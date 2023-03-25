@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2022",
     "outDir": "./lib",
+    "allowJs": true,
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,

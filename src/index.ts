@@ -9,6 +9,7 @@ import { registerFastifyCookie } from './shared/plugins/cookie';
 import { registerFastifySwagger } from './shared/plugins/swagger';
 import { LoggerInstance } from './shared/services';
 import cors from '@fastify/cors';
+import fastifySwaggerUi from '@fastify/swagger-ui';
 
 const ajv = new Ajv({
   strict: true,
@@ -24,8 +25,8 @@ const server = fastify({ logger: LoggerInstance });
 
 const start = async () => {
   registerGlobal(server);
-  registerFastifySwagger(server);
-  registerFastifyCookie(server);
+  await registerFastifyCookie(server);
+  await registerFastifySwagger(server);
   await connectToDB();
   await server.register(cors);
   await server.register(endpointRouter);
