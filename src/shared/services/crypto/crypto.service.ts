@@ -3,15 +3,21 @@ import fetch from 'node-fetch';
 import { ICoinsMarketChartRangeResponse } from '../../coin-gecko';
 import { coinGeckoConfig } from '../../configs';
 import { INVEST_DAY_OF_MONTH } from '../../consts';
-import { AvialableCoinsType } from '../../types';
+import { AvialableCoinsType, ICoinsCapitals } from '../../types';
 import { LoggerInstance } from '../logger';
 import {
   GetTotalCapitalInput,
   IGetCoinPricesInput,
   IGetCoinsProfitInput,
   IGetMainCoinsDataInput,
+  IGetMonthlyCapitalsInput,
 } from './inputs';
-import { GetCoinsPricesOutput, GetCoinsProfitOutput, GetMainCoinsDataOutput } from './outputs';
+import {
+  GetCoinsPricesOutput,
+  GetMainCoinsDataOutput,
+  GetMonthlyCapitalsOutput,
+  IGetCoinsProfitOutput,
+} from './outputs';
 
 export const getMainCoinsInfo = (coinData: AvialableCoinsType[]) =>
   coinData.map(({ _id, ...rest }) => rest);
@@ -26,7 +32,7 @@ export const getInvestmentPeriod = (startDate: DateTime, endDate: DateTime) => {
   const { months } = startDate.diff(endDate, ['months', 'days']);
   const diffMonths = Math.abs(months);
 
-  const specifiedNumberOfMonths = isSameMonthAndYear(startDate, endDate) ? 1 : 2;
+  const specifiedNumberOfMonths = isSameMonthAndYear(startDate, endDate) ? 0 : 1;
 
   return specifiedNumberOfMonths + diffMonths;
 };
@@ -178,12 +184,30 @@ const fixedCoinsNumber = (price: number, inputCoinsNumber: number) => {
   return resultCoinsNumber;
 };
 
+const getCoinCapitals = (prices: number[], investment: number) => {
+  const capitals: number[] = [];
+  const purchasedTokens: number[] = [];
+
+  for (let i = 0; i < prices.length; i++) {
+    const currentMonthTokens = investment / prices[i];
+
+    purchasedTokens[i] = (purchasedTokens[i - 1] ?? 0) + currentMonthTokens;
+    capitals[i] = purchasedTokens[i] * prices[i];
+  }
+
+  return capitals;
+};
+
 export const getCoinsProfit = ({
   monthlyInvestment,
   mainCoinsData,
-}: IGetCoinsProfitInput): GetCoinsProfitOutput =>
-  mainCoinsData.map(({ coinId, image, name, prices, share, symbol }) => {
+}: IGetCoinsProfitInput): IGetCoinsProfitOutput => {
+  const coinsCapitals: ICoinsCapitals = {};
+
+  const coinsProfit = mainCoinsData.map(({ coinId, image, name, prices, share, symbol }) => {
     const monthlyInvestShare = (monthlyInvestment / 100) * share;
+
+    coinsCapitals[name] = getCoinCapitals(prices, monthlyInvestShare);
 
     const { purchasedCoins, invested } = getInvestAndPurchased(monthlyInvestShare, prices);
 
@@ -208,3 +232,51 @@ export const getCoinsProfit = ({
       growth,
     };
   });
+
+  return {
+    coinsCapitals,
+    coinsProfit,
+  };
+};
+
+export const getMonthlyCapitals = ({
+  coinsCapitals,
+  startDate,
+  endDate,
+}: IGetMonthlyCapitalsInput): GetMonthlyCapitalsOutput => {
+  const totalCapitals: number[] = [];
+
+  let prevDate: null | DateTime = null;
+
+  for (const [coinName, capitals] of Object.entries(coinsCapitals)) {
+    for (let i = 0; i < capitals.length; i++) {
+      const capital = capitals[i];
+
+      if (Boolean(totalCapitals[i])) {
+        totalCapitals[i] += capital;
+      } else {
+        totalCapitals[i] = capital;
+      }
+    }
+  }
+
+  const firstCapital = totalCapitals.at(0)?.toFixed(0);
+  const lastCapital = totalCapitals.at(-1)?.toFixed(0);
+
+  LoggerInstance.info(`First and last capital: ${firstCapital} and ${lastCapital}`);
+
+  return totalCapitals.map((capital, index, arr) => {
+    let resultDate = 0;
+
+    if (index === 0) {
+      resultDate = startDate.toMillis();
+    } else if (index === arr.length - 1) {
+      resultDate = endDate.toMillis();
+    } else {
+      prevDate = (prevDate || startDate).plus({ month: 1 }).set({ day: INVEST_DAY_OF_MONTH });
+      resultDate = prevDate.toMillis();
+    }
+
+    return { capital: fixedPrice(capital), date: resultDate };
+  });
+};

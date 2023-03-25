@@ -23,6 +23,13 @@ export const CalculateProfitSchema: FastifySchema = {
       investmentPeriod: { type: 'number' },
       totalCapital: { type: 'number' },
       totalGrowth: { type: 'number' },
+      monthlyCapitals: {
+        type: 'array',
+        items: {
+          date: { type: 'number' },
+          capital: { type: 'number' },
+        },
+      },
       coins: {
         type: 'array',
         items: {

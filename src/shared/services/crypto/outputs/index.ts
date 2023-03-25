@@ -1,7 +1,18 @@
-import { ICoinPrices, ICoinProfitResult, ICoinMainData } from '../../../types';
+import {
+  ICoinMainData,
+  ICoinsPrices,
+  ICoinProfitResult,
+  IMonthlyCapitalData,
+  ICoinsCapitals,
+} from '../../../types';
 
-export type GetCoinsPricesOutput = ICoinPrices;
+export type GetCoinsPricesOutput = ICoinsPrices;
 
 export type GetMainCoinsDataOutput = ICoinMainData[];
 
-export type GetCoinsProfitOutput = ICoinProfitResult[];
+export interface IGetCoinsProfitOutput {
+  coinsCapitals: ICoinsCapitals;
+  coinsProfit: ICoinProfitResult[];
+}
+
+export type GetMonthlyCapitalsOutput = IMonthlyCapitalData[];

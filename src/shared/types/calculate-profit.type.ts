@@ -5,7 +5,11 @@ export interface ICoinShareData {
   share: number;
 }
 
-export interface ICoinPrices {
+export interface ICoinsPrices {
+  [key: string]: number[];
+}
+
+export interface ICoinsCapitals {
   [key: string]: number[];
 }
 
@@ -23,4 +27,9 @@ export interface ICoinProfitResult extends ICoinInfo {
   purchasedCoins: number;
   growth: number;
   share: number;
+}
+
+export interface IMonthlyCapitalData {
+  date: number;
+  capital: number;
 }
