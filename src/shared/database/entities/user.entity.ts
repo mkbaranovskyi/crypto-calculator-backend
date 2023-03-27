@@ -8,5 +8,5 @@ export class UserEntity extends Base {
   email!: string;
 
   @Column()
-  sessionKeys!: ISessionKeyData[];
+  sessionKeys: ISessionKeyData[] = [];
 }

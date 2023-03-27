@@ -1,12 +1,12 @@
 import jwt from 'jsonwebtoken';
 import { DateTime } from 'luxon';
-import { IJWTData } from '../../types';
+import { IJWTData, ISessionKeyData } from '../../types';
 import { LoggerInstance } from '../logger';
 import { IGenerateTokensInput } from './inputs';
 import { IGenerateTokensOutput } from './outputs';
 
 const createToken = async (
-  sessionKey: string,
+  sessionKey: ISessionKeyData,
   jwtSecret: string,
   tokenDeathDate: string
 ): Promise<string> => {
@@ -30,8 +30,8 @@ export const generateTokens = async ({
   refreshDeathDate,
 }: IGenerateTokensInput): Promise<IGenerateTokensOutput> => {
   const result = await Promise.all([
-    createToken(sessionKey.id, jwtSecret, `${accessDeathDate}s`),
-    createToken(sessionKey.id, jwtSecret, `${refreshDeathDate}s`),
+    createToken(sessionKey, jwtSecret, `${accessDeathDate}s`),
+    createToken(sessionKey, jwtSecret, `${refreshDeathDate}s`),
   ]);
 
   if (!result.length) {
@@ -64,6 +64,7 @@ export const decodeToken = async (token: string, jwtSecret: string): Promise<IJW
       });
     });
   } catch (err) {
+    LoggerInstance.error('Verify JWT error.');
     return null;
   }
 

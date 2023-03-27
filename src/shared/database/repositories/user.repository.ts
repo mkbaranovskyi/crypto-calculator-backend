@@ -1,31 +1,39 @@
 import { ObjectID } from 'typeorm';
-import { LoggerInstance, SessionKeyService } from '../../services';
+import { SessionKeyService } from '../../services';
 import { ISessionKeyData } from '../../types';
+import { MongoManager } from '../connection';
 import { UserEntity } from '../entities';
 
 export const findOneBySessionKey = async (inputSessionKey: ISessionKeyData) => {
-  const user = await UserEntity.findOne({
+  const user = await MongoManager.findOne(UserEntity, {
     where: {
-      sessionKeys: { $eq: inputSessionKey },
-    } as any,
+      sessionKeys: { $elemMatch: { id: inputSessionKey.id } },
+    },
   });
 
   if (user) {
-    const validSessionKeys = user.sessionKeys.filter((sessionKey) =>
-      SessionKeyService.isValid(sessionKey)
+    const invalidSessionKeys = user.sessionKeys.filter(
+      (sessionKey) => !SessionKeyService.isValid(sessionKey)
     );
 
-    await UserEntity.update({ _id: user._id }, { sessionKeys: validSessionKeys });
+    MongoManager.updateOne(
+      UserEntity,
+      {
+        _id: user._id,
+      },
+      { $pull: { sessionKeys: { $in: invalidSessionKeys } } }
+    );
   }
 
   return user;
 };
 
 export const pushSessionKeyById = async (userId: ObjectID, sessionKey: ISessionKeyData) => {
-  const user = await UserEntity.findOneBy({ _id: userId });
-  if (user) {
-    await UserEntity.update({ _id: userId }, { sessionKeys: [...user.sessionKeys, sessionKey] });
-  } else {
-    LoggerInstance.warn(`UserID ${userId} not found when updating document.`);
-  }
+  await MongoManager.updateOne(
+    UserEntity,
+    {
+      _id: userId,
+    },
+    { $push: { sessionKeys: sessionKey } }
+  );
 };

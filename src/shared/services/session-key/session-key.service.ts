@@ -18,5 +18,5 @@ export const create = (): CreateOutput => {
 export const isValid = (sessionKey: ISessionKeyData) => {
   const date = DateTime.utc();
 
-  return sessionKey.expiresIn < date.toMillis();
+  return sessionKey.expiresIn > date.toMillis();
 };
