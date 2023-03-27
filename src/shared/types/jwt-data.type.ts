@@ -1,5 +1,7 @@
+import { ISessionKeyData } from './session-key.type';
+
 export interface IJWTData {
-  sessionKey: string;
+  sessionKey: ISessionKeyData;
   exp: number;
   iat: number;
 }

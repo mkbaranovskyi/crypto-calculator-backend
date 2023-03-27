@@ -1,4 +1,4 @@
-import { UserEntity } from '../database';
+import { UserEntity, UserRepository } from '../database';
 import { BadRequestException, UnauthorizedException } from '../errors';
 import { JWTService, LocalStorage, LoggerInstance } from '../services';
 
@@ -15,7 +15,7 @@ export const checkAccessToken = async (jwtSecret: string, token?: string): Promi
     throw BadRequestException('Invalid access token.');
   }
 
-  const user = await UserEntity.findOneBy({ sessionKey: tokenPayload.sessionKey });
+  const user = await UserRepository.findOneBySessionKey(tokenPayload.sessionKey);
 
   if (!user) {
     LoggerInstance.error('User does not have a session key.');

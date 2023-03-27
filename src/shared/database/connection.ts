@@ -1,9 +1,8 @@
 import { DataSource } from 'typeorm';
-import { mongoConfig } from '../configs';
 import { CoinListEntity, CryptoDataEntity, UserEntity, VerificationCodeEntity } from './entities';
 
 export const connectToDB = async () => {
-  await new DataSource({
+  const MyDataSource = await new DataSource({
     type: 'mongodb',
     username: 'root',
     password: 'pass',
