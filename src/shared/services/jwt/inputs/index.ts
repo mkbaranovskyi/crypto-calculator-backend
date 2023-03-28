@@ -1,8 +1,7 @@
-import { ISessionKeyData } from '../../../types';
+import { IJWTPayload } from '../../../types';
 
 export interface IGenerateTokensInput {
-  jwtSecret: string;
-  sessionKey: ISessionKeyData;
+  payload: IJWTPayload;
   accessDeathDate: number;
   refreshDeathDate: number;
 }

@@ -1,11 +1,11 @@
 import { jwtConfig } from '../../shared/configs';
-import { UserEntity, UserRepository } from '../../shared/database';
+import { UserRepository } from '../../shared/database';
 import { UnauthorizedException } from '../../shared/errors';
 import { JWTService, LoggerInstance } from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
 import { checkAuthSchema, ICheckAuthBodySchema as ICheckAuthBodyInput } from './schemas';
 
-const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
+const { accessDeathDate, refreshDeathDate } = jwtConfig;
 
 export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyInput }> = {
   url: '/refresh-tokens',
@@ -14,23 +14,22 @@ export const refreshTokensController: ControllerOptions<{ Body: ICheckAuthBodyIn
   handler: async (req, reply) => {
     const { refreshToken: inputRefreshToken } = req.body;
 
-    const tokenPayload = await JWTService.decodeToken(inputRefreshToken, secret);
+    const tokenPayload = await JWTService.verifyToken(inputRefreshToken);
 
     if (!tokenPayload) {
       throw UnauthorizedException('Invalid refresh token.');
     }
 
-    const user = await UserRepository.findOneBySessionKey(tokenPayload.sessionKey);
+    const user = await UserRepository.removeInvalidSKsById(tokenPayload.userId);
 
     if (!user) {
-      LoggerInstance.error('User does not have a session key. ');
+      LoggerInstance.error('User does not have session keys. ');
       throw UnauthorizedException('Invalid refresh token.');
     }
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
-        sessionKey: tokenPayload.sessionKey,
-        jwtSecret: secret,
+        payload: { sessionKey: tokenPayload.sessionKey, userId: user._id },
         accessDeathDate,
         refreshDeathDate,
       });

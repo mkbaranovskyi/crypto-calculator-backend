@@ -10,7 +10,7 @@ import {
 import { ControllerOptions } from '../../shared/types';
 import { IValidateEmailBodyInput, validateEmailSchema } from './schemas';
 
-const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
+const { accessDeathDate, refreshDeathDate } = jwtConfig;
 
 export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBodyInput }> = {
   url: '/email/validate',
@@ -40,8 +40,7 @@ export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBo
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
-        sessionKey,
-        jwtSecret: secret,
+        payload: { sessionKey, userId: user._id },
         accessDeathDate,
         refreshDeathDate,
       });
