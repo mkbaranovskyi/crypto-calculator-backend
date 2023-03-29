@@ -47,7 +47,7 @@ export const sendSignInLetter = async (toEmail: string, code: string): Promise<v
   const mailOptions: MailOptions = {
     from: `<${smtpConfig.user}>`,
     to: `<${toEmail}>`,
-    subject: 'Crypto Financial Calculator: sign in',
+    subject: 'Crypto Metrics: sign in',
     html,
   };
 

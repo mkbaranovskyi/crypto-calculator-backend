@@ -1,10 +1,11 @@
 import { DataSource } from 'typeorm';
+import { mongoConfig } from '../configs';
 import { CoinListEntity, CryptoDataEntity, UserEntity, VerificationCodeEntity } from './entities';
 
 export const MyDataSource = new DataSource({
   type: 'mongodb',
-  username: 'root',
-  password: 'pass',
+  username: mongoConfig.username,
+  password: mongoConfig.pass,
   database: 'crypto-calculator',
   authSource: 'admin',
   port: 27017,
