@@ -9,20 +9,20 @@ import { ObjectID } from 'mongodb';
 export const removeInvalidSKsById = async (userId: ObjectIDByTypeORM) => {
   const user = await UserEntity.findOneBy({ _id: new ObjectID(userId) });
 
-  if (user) {
-    const invalidSessionKeys = user.sessionKeys.filter(
-      (sessionKey) => !SessionKeyService.isValid(sessionKey)
-    );
+  if (!user) {
+    throw new Error('User is not found.');
+  }
 
-    if (invalidSessionKeys.length > 0) {
-      await MongoManager.updateOne(
-        UserEntity,
-        { _id: userId },
-        { $pull: { sessionKeys: { $in: invalidSessionKeys } } }
-      );
-    } else {
-      LoggerInstance.info(`User ${userId} does not have invalid session keys.`);
-    }
+  const invalidSessionKeys = user.sessionKeys.filter(
+    (sessionKey) => !SessionKeyService.isValid(sessionKey)
+  );
+
+  if (invalidSessionKeys.length > 0) {
+    await MongoManager.updateOne(
+      UserEntity,
+      { _id: userId },
+      { $pull: { sessionKeys: { $in: invalidSessionKeys } } }
+    );
   }
 
   return user;

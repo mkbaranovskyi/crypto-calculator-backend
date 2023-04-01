@@ -6,12 +6,11 @@ export const MyDataSource = new DataSource({
   type: 'mongodb',
   username: mongoConfig.username,
   password: mongoConfig.pass,
-  database: 'crypto-calculator',
+  database: mongoConfig.database,
   authSource: 'admin',
   port: 27017,
   useUnifiedTopology: true,
   useNewUrlParser: true,
-  synchronize: false,
   entities: [UserEntity, VerificationCodeEntity, CoinListEntity, CryptoDataEntity],
 });
 

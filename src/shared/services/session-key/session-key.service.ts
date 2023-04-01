@@ -12,11 +12,11 @@ export const create = (): CreateOutput => {
   const date = DateTime.utc();
   const expiresIn = date.plus({ seconds: refreshDeathDate }).toMillis();
 
-  return { id, expiresIn };
+  return { id, expiresInSeconds: expiresIn };
 };
 
 export const isValid = (sessionKey: ISessionKeyData) => {
   const date = DateTime.utc();
 
-  return sessionKey.expiresIn > date.toMillis();
+  return sessionKey.expiresInSeconds > date.toMillis();
 };
