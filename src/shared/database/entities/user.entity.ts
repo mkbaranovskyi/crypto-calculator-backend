@@ -1,4 +1,5 @@
 import { Column, Entity } from 'typeorm';
+import { ISessionKeyData } from '../../types';
 import { Base } from './base.entity';
 
 @Entity('user')
@@ -7,5 +8,5 @@ export class UserEntity extends Base {
   email!: string;
 
   @Column()
-  sessionKey!: string;
+  sessionKeys: ISessionKeyData[] = [];
 }

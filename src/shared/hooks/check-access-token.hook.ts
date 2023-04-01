@@ -1,26 +1,35 @@
-import { UserEntity } from '../database';
+import { UserRepository } from '../database';
 import { BadRequestException, UnauthorizedException } from '../errors';
 import { JWTService, LocalStorage, LoggerInstance } from '../services';
 
-export const checkAccessToken = async (jwtSecret: string, token?: string): Promise<void> => {
-  if (!token) {
-    return;
-  }
+export const checkAccessToken = async (token?: string): Promise<void> => {
+  try {
+    if (!token) {
+      throw new Error('Invalid access token.');
+    }
 
-  const cleanedUpCode = token.replace('Bearer ', '');
+    const cleanedUpCode = token.replace('Bearer ', '');
 
-  const tokenPayload = await JWTService.decodeToken(cleanedUpCode, jwtSecret);
+    const tokenPayload = await JWTService.verifyToken(cleanedUpCode);
 
-  if (!tokenPayload) {
-    throw BadRequestException('Invalid access token.');
-  }
+    if (!tokenPayload) {
+      const payload = await JWTService.decodeToken(cleanedUpCode);
 
-  const user = await UserEntity.findOneBy({ sessionKey: tokenPayload.sessionKey });
+      if (payload?.userId) {
+        await UserRepository.removeInvalidSKsById(payload.userId);
+      } else {
+        LoggerInstance.warn(
+          `Token ${cleanedUpCode} does not have payload for removeInvalidSKsById.`
+        );
+      }
 
-  if (!user) {
-    LoggerInstance.error('User does not have a session key.');
+      throw BadRequestException('Invalid access token.');
+    }
+
+    const user = await UserRepository.removeInvalidSKsById(tokenPayload.userId);
+
+    LocalStorage.setUser(user);
+  } catch (err) {
     throw new UnauthorizedException('Invalid access token.');
   }
-
-  LocalStorage.setUser(user);
 };

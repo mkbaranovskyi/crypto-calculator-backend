@@ -6,7 +6,7 @@ export const registerFastifySwagger = async (server: FastifyInstance) => {
   await server.register<SwaggerOptions>(fastifySwagger, {
     swagger: {
       info: {
-        title: 'Crypto Financial Calculator',
+        title: 'Crypto Metrics',
         version: '0.0.1',
       },
     },

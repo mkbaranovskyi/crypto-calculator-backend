@@ -1,6 +1,6 @@
-# Crypto Financial Calculator
+# Crypto Metrics
 
-- [Crypto Financial Calculator](#crypto-financial-calculator)
+- [Crypto Metrics](#crypto-metrics)
   - [Розробка](#розробка)
   - [Мета проекту](#мета-проекту)
   - [Функціонал](#функціонал)

@@ -1,12 +1,16 @@
-import { randomUUID } from 'crypto';
 import { jwtConfig } from '../../shared/configs';
-import { UserEntity, VerificationCodeEntity } from '../../shared/database';
+import { UserEntity, UserRepository, VerificationCodeEntity } from '../../shared/database';
 import { BadRequestException, UnauthorizedException } from '../../shared/errors';
-import { JWTService, LoggerInstance, VerificationCodeService } from '../../shared/services';
+import {
+  JWTService,
+  LoggerInstance,
+  SessionKeyService,
+  VerificationCodeService,
+} from '../../shared/services';
 import { ControllerOptions } from '../../shared/types';
 import { IValidateEmailBodyInput, validateEmailSchema } from './schemas';
 
-const { secret, accessDeathDate, refreshDeathDate } = jwtConfig;
+const { accessDeathDate, refreshDeathDate } = jwtConfig;
 
 export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBodyInput }> = {
   url: '/email/validate',
@@ -30,14 +34,13 @@ export const validateEmailController: ControllerOptions<{ Body: IValidateEmailBo
       throw new UnauthorizedException(err.message);
     }
 
-    const sessionKey = randomUUID();
+    const sessionKey = SessionKeyService.create();
 
-    await UserEntity.update(user._id, { sessionKey });
+    UserRepository.pushSessionKeyById(user._id, sessionKey);
 
     const { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn } =
       await JWTService.generateTokens({
-        sessionKey,
-        jwtSecret: secret,
+        payload: { sessionKey, userId: user._id },
         accessDeathDate,
         refreshDeathDate,
       });

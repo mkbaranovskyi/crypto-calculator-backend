@@ -1,17 +1,16 @@
 import jwt from 'jsonwebtoken';
 import { DateTime } from 'luxon';
-import { IJWTData } from '../../types';
+import { jwtConfig } from '../../configs';
+import { IJWTData, IJWTPayload } from '../../types';
 import { LoggerInstance } from '../logger';
 import { IGenerateTokensInput } from './inputs';
 import { IGenerateTokensOutput } from './outputs';
 
-const createToken = async (
-  sessionKey: string,
-  jwtSecret: string,
-  tokenDeathDate: string
-): Promise<string> => {
-  return new Promise((res) => {
-    jwt.sign({ sessionKey }, jwtSecret, { expiresIn: tokenDeathDate }, (err, token) => {
+const { secret } = jwtConfig;
+
+const createToken = async (payload: IJWTPayload, tokenDeathDate: string): Promise<string> =>
+  new Promise((res) => {
+    jwt.sign({ ...payload }, secret, { expiresIn: tokenDeathDate }, (err, token) => {
       if (err) {
         throw err;
       } else if (!token) {
@@ -21,17 +20,15 @@ const createToken = async (
       }
     });
   });
-};
 
 export const generateTokens = async ({
-  sessionKey,
-  jwtSecret,
+  payload,
   accessDeathDate,
   refreshDeathDate,
 }: IGenerateTokensInput): Promise<IGenerateTokensOutput> => {
   const result = await Promise.all([
-    createToken(sessionKey, jwtSecret, `${accessDeathDate}s`),
-    createToken(sessionKey, jwtSecret, `${refreshDeathDate}s`),
+    createToken(payload, `${accessDeathDate}s`),
+    createToken(payload, `${refreshDeathDate}s`),
   ]);
 
   if (!result.length) {
@@ -47,23 +44,28 @@ export const generateTokens = async ({
   return { accessToken, refreshToken, accessTokenExpiresIn, refreshTokenExpiresIn };
 };
 
-export const decodeToken = async (token: string, jwtSecret: string): Promise<IJWTData | null> => {
+export const decodeToken = async (token: string): Promise<IJWTData | null> =>
+  jwt.decode(token) as IJWTData | null;
+
+export const verifyToken = async (token: string): Promise<IJWTData | null> => {
   let result = null;
 
   try {
     result = await new Promise<IJWTData>((res, rej) => {
-      jwt.verify(token, jwtSecret, (err, decoded) => {
+      jwt.verify(token, secret, (err, decoded) => {
         if (err) {
           LoggerInstance.error('Token decoding error.');
           throw err;
         } else if (!decoded || !(decoded as IJWTData).sessionKey) {
           LoggerInstance.error('Decoded token not found.');
+          rej();
         } else {
           res(decoded as IJWTData);
         }
       });
     });
   } catch (err) {
+    LoggerInstance.error('Verify JWT error.');
     return null;
   }
 
