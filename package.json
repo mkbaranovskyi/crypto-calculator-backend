@@ -6,7 +6,12 @@
   "scripts": {
     "build": "tsc",
     "debug": "tsc-watch -p tsconfig.json --onSuccess 'node --inspect=0.0.0.0:9229 ./lib'",
-    "prod": "node lib/index"
+    "prod": "node lib/index",
+    "tsc": "tsc",
+    "lint": "eslint . --ext .tsx --ext .ts src/",
+    "lint:fix": "yarn lint --fix",
+    "prettier": "prettier --config ./.prettierrc --check \"src*/**/*.ts\" --check \"src*/**/*.tsx\" ",
+    "prettier:fix": "yarn prettier --write"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +23,7 @@
     "@types/node-fetch": "^2.6.2",
     "@types/nodemailer": "^6.4.7",
     "nodemon": "^2.0.22",
-    "prettier": "2.8.7",
+    "prettier": "^2.8.7",
     "tsc-watch": "^6.0.0",
     "typescript": "^5.0.2"
   },

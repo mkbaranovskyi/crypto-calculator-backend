@@ -1,0 +1,8 @@
+pre-commit:
+  commands:
+    tsc-runner:
+      run: npm run tsc
+
+    prettier-fixer:
+      glob: '*.{js,ts,tsx}'
+      run: node_modules/.bin/prettier --config ./.prettierrc --write {staged_files}
