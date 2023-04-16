@@ -37,13 +37,12 @@ export const signInController: ControllerOptions<{ Body: ISignInBodyInput }> = {
 
     const { code, expiresAt } = VerificationCodeService.createCode();
 
-    await VerificationCodeEntity.create({ userId, code, expiresAt }).save();
-
     try {
       await EmailService.sendSignInLetter(email, code);
+      await VerificationCodeEntity.create({ userId, code, expiresAt }).save();
     } catch (err) {
       LoggerInstance.error('Send message to email error.');
-      new InternalServerError(err);
+      throw new InternalServerError('Internal server error.');
     }
 
     return {
