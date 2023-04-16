@@ -19,7 +19,8 @@ const ajv = new Ajv({
 });
 ajvFormats(ajv, ['email']);
 
-const PORT = Number(process.env.PORT) ?? 5001;
+const processPORT = Number.isNaN(process.env.PORT) ? Number(process.env.PORT) : undefined;
+const PORT = processPORT ?? 5001;
 const server = fastify({ logger: LoggerInstance });
 
 const start = async () => {
